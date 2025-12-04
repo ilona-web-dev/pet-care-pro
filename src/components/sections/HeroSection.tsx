@@ -1,19 +1,30 @@
 import heroMainImg from '../../assets/vet-doctor-main.jpg';
-const careHighlights = [
+
+type CareHighLightProps = {
+  id: number;
+  title: string;
+  description: string;
+};
+
+const careHighlights: CareHighLightProps[] = [
   {
+    id: 1,
     title: 'Multi-pet records',
     description:
       'One secure portal for every cat, dog, and rabbit in the family.',
   },
   {
+    id: 2,
     title: 'Same-day diagnostics',
     description: 'In-house lab results delivered straight to your inbox.',
   },
   {
+    id: 3,
     title: 'Fear-free visits',
     description: 'Certified team, low-scent rooms, calming music.',
   },
   {
+    id: 4,
     title: 'Home pick-up',
     description: 'Transport for senior pets anywhere in Dublin County.',
   },
@@ -53,7 +64,7 @@ export default function HeroSection() {
 
         <dl className="mt-8 grid gap-6 text-sm text-slate-600 sm:grid-cols-2">
           {careHighlights.map((highlight) => (
-            <div key={highlight.title}>
+            <div key={highlight.id}>
               <dt className="font-semibold text-slate-900">
                 {highlight.title}
               </dt>
@@ -74,7 +85,7 @@ export default function HeroSection() {
             <p className="text-xs font-semibold tracking-wide text-slate-400 uppercase">
               This month
             </p>
-            <p className="text-2xl font-semibold text-slate-900">
+            <p className="text-2xl font-semibold text-slate-800">
               128 pets treated
             </p>
             <p className="text-sm text-teal-600">
