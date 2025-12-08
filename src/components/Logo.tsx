@@ -14,7 +14,7 @@ export default function Logo() {
         alt="PetCare Pro logo"
       />
       <div>
-        <p className="text-lg font-semibold text-slate-900">PetCare Pro</p>
+        <p className="text-lg font-semibold text-slate-800">PetCare Pro</p>
         <p className="text-sm text-slate-500">Dublin Veterinary Clinic</p>
       </div>
     </Link>

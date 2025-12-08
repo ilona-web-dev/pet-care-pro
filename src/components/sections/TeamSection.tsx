@@ -55,7 +55,7 @@ export default function TeamSection() {
         <p className="text-sm font-semibold tracking-wide text-teal-600 uppercase">
           Meet the team
         </p>
-        <h2 className="mt-2 text-3xl font-semibold text-slate-900">
+        <h2 className="mt-2 text-3xl font-semibold text-slate-800">
           Dublin vets, nurses, and groomers who know your pet
         </h2>
         <p className="mt-3 text-base text-slate-600">

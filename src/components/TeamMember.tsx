@@ -21,7 +21,7 @@ export default function TeamMember({
         </span>
       </div>
       <div className="mt-4 flex flex-col">
-        <p className="text-lg font-semibold text-slate-900">{name}</p>
+        <p className="text-lg font-semibold text-slate-800">{name}</p>
         <p className="text-sm text-teal-600">{role}</p>
         <p className="mt-3 text-sm text-slate-600">{bio}</p>
       </div>

@@ -65,7 +65,7 @@ export default function HeroSection() {
         <dl className="mt-8 grid gap-6 text-sm text-slate-600 sm:grid-cols-2">
           {careHighlights.map((highlight) => (
             <div key={highlight.id}>
-              <dt className="font-semibold text-slate-900">
+              <dt className="font-semibold text-slate-800">
                 {highlight.title}
               </dt>
               <dd>{highlight.description}</dd>
