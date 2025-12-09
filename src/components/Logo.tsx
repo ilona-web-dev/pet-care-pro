@@ -1,7 +1,15 @@
 import { Link } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
-export default function Logo() {
+type LogoProps = {
+  variant?: 'light' | 'dark';
+};
+
+export default function Logo({ variant = 'dark' }: LogoProps) {
+  const titleColor = variant === 'dark' ? 'text-slate-800' : 'text-white';
+  const subtitleColor =
+    variant === 'dark' ? 'text-slate-500' : 'text-slate-300';
+
   return (
     <Link
       to="/"
@@ -14,8 +22,8 @@ export default function Logo() {
         alt="PetCare Pro logo"
       />
       <div>
-        <p className="text-lg font-semibold text-slate-800">PetCare Pro</p>
-        <p className="text-sm text-slate-500">Dublin Veterinary Clinic</p>
+        <p className={`text-lg font-semibold ${titleColor}`}>PetCare Pro</p>
+        <p className={`text-sm ${subtitleColor}`}>Dublin Veterinary Clinic</p>
       </div>
     </Link>
   );
