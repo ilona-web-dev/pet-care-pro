@@ -3,6 +3,8 @@ import ServiceSection from '../components/sections/ServiceSection';
 import TeamSection from '../components/sections/TeamSection';
 import TestimonialsSection from '../components/sections/TestimonialsSection';
 
+import ContactSection from '../components/sections/ContactSection';
+
 export default function Home() {
   return (
     <div className="space-y-24 py-8">
@@ -10,6 +12,7 @@ export default function Home() {
       <ServiceSection />
       <TeamSection />
       <TestimonialsSection />
+      <ContactSection />
     </div>
   );
 }
