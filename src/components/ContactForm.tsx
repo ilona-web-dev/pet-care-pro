@@ -1,3 +1,6 @@
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
 import FormInput from './ui/form/FormInput';
 import FormSelect from './ui/form/FormSelect';
 import FormTextArea from './ui/form/FormTextArea';
@@ -11,32 +14,68 @@ const visitTypes = [
   { value: 'other', label: 'Other' },
 ];
 
+const contactSchema = z.object({
+  ownerName: z.string().min(2, 'Please enter your name'),
+  phone: z.string().min(2, 'Phone number is required'),
+  email: z.string().email('Valid email required'),
+  petName: z.string().min(1, 'Pet name is required'),
+  visitType: z.string().min(1, 'Select visit type'),
+  message: z.string().min(5, 'Please describe the concern'),
+});
+
+type ContactFormValues = z.infer<typeof contactSchema>;
+
 export default function ContactForm() {
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ContactFormValues>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      ownerName: '',
+      phone: '',
+      email: '',
+      petName: '',
+      visitType: '',
+      message: '',
+    },
+  });
+
+  const onSubmit = handleSubmit((values) => {
+    console.log(values);
+    reset();
+  });
+
   return (
     <div className="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
-      <form className="space-y-6">
+      <form className="space-y-6" onSubmit={onSubmit}>
         <FormInput
           label="Your name"
           id="ownerName"
-          name="ownerName"
           placeholder="Aoife Murphy"
           type="text"
+          {...register('ownerName', { required: true })}
+          error={errors.ownerName?.message}
         />
 
         <div className="grid gap-6 sm:grid-cols-2">
           <FormInput
             label="Phone number"
             id="phone"
-            name="phone"
             placeholder="+353 1 123 4567"
             type="tel"
+            {...register('phone')}
+            error={errors.phone?.message}
           />
           <FormInput
             label="Email address"
             id="email"
-            name="email"
             placeholder="you@email.com"
             type="email"
+            {...register('email')}
+            error={errors.email?.message}
           />
         </div>
 
@@ -44,24 +83,27 @@ export default function ContactForm() {
           <FormInput
             label="Pet name"
             id="petName"
-            name="petName"
             placeholder="Finn"
             type="text"
+            {...register('petName')}
+            error={errors.petName?.message}
           />
           <FormSelect
             id="visitType"
-            name="visitType"
             label="Type of visit"
             options={visitTypes}
             placeholder="Select visit type"
             defaultValue=""
+            {...register('visitType')}
+            error={errors.visitType?.message}
           />
         </div>
         <FormTextArea
           id="message"
-          name="message"
           label="Notes / symptoms"
           placeholder="Let us know if your pet has ongoing meds, allergies, or specific concerns."
+          {...register('message')}
+          error={errors.message?.message}
         />
 
         <button
