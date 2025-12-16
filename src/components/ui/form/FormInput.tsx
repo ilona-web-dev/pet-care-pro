@@ -1,32 +1,24 @@
 import clsx from 'clsx';
 import type { InputHTMLAttributes } from 'react';
-import FieldError from './FieldError';
 
 type FormInputProps = InputHTMLAttributes<HTMLInputElement> & {
-  label: string;
-  error?: string;
+  hasError?: boolean;
 };
 
 const baseClass =
   'mt-2 w-full rounded-2xl border border-slate-200 px-4 py-3 text-sm text-slate-700 outline-none transition placeholder:text-slate-400 focus-visible:border-teal-400 focus-visible:ring-2 focus-visible:ring-teal-500/40';
 
-export default function FormInput({ label, id, error, className, ...props }: FormInputProps) {
+export default function FormInput({ id, hasError, className, ...props }: FormInputProps) {
   return (
-    <div>
-      <label htmlFor={id} className="text-sm font-semibold text-slate-700">
-        {label}
-      </label>
-      <input
-        aria-invalid={error ? 'true' : 'false'}
-        id={id}
-        className={clsx(
-          baseClass,
-          className,
-          error && 'border-rose-400 focus-visible:ring-rose-400/40'
-        )}
-        {...props}
-      />
-      <FieldError message={error} />
-    </div>
+    <input
+      aria-invalid={hasError ? 'true' : 'false'}
+      id={id}
+      className={clsx(
+        baseClass,
+        className,
+        hasError && 'border-rose-400 focus-visible:ring-rose-400/40'
+      )}
+      {...props}
+    />
   );
 }

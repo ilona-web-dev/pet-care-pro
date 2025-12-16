@@ -1,9 +1,12 @@
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import { ImSpinner2 } from 'react-icons/im';
 import FormInput from './ui/form/FormInput';
 import FormSelect from './ui/form/FormSelect';
 import FormTextArea from './ui/form/FormTextArea';
+import FormField from './ui/form/FormField';
 
 const visitTypes = [
   { value: 'wellness', label: 'Wellness visit' },
@@ -25,12 +28,20 @@ const contactSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactSchema>;
 
+const simulateRequest = (values: ContactFormValues) =>
+  new Promise<void>((resolve) => {
+    setTimeout(() => {
+      console.log('Contact request', values);
+      resolve();
+    }, 1200);
+  });
+
 export default function ContactForm() {
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors },
+    formState: { errors, isSubmitting },
   } = useForm<ContactFormValues>({
     resolver: zodResolver(contactSchema),
     defaultValues: {
@@ -43,74 +54,98 @@ export default function ContactForm() {
     },
   });
 
-  const onSubmit = handleSubmit((values) => {
-    console.log(values);
-    reset();
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      await toast.promise(simulateRequest(values), {
+        loading: 'Sending request...',
+        success: 'Thanks! We will call or email you shortly.',
+        error: 'Something went wrong. Please try again.',
+      });
+      reset();
+    } catch (error) {
+      // toast.promise already handled the error state
+    }
   });
 
   return (
     <div className="rounded-3xl bg-white p-8 shadow-xl ring-1 ring-slate-100">
       <form className="space-y-6" onSubmit={onSubmit}>
-        <FormInput
-          label="Your name"
-          id="ownerName"
-          placeholder="Aoife Murphy"
-          type="text"
-          {...register('ownerName', { required: true })}
-          error={errors.ownerName?.message}
-        />
-
-        <div className="grid gap-6 sm:grid-cols-2">
+        <FormField label="Your name" htmlFor="ownerName" error={errors.ownerName?.message}>
           <FormInput
-            label="Phone number"
-            id="phone"
-            placeholder="+353 1 123 4567"
-            type="tel"
-            {...register('phone')}
-            error={errors.phone?.message}
-          />
-          <FormInput
-            label="Email address"
-            id="email"
-            placeholder="you@email.com"
-            type="email"
-            {...register('email')}
-            error={errors.email?.message}
-          />
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <FormInput
-            label="Pet name"
-            id="petName"
-            placeholder="Finn"
+            id="ownerName"
+            placeholder="Aoife Murphy"
             type="text"
-            {...register('petName')}
-            error={errors.petName?.message}
+            {...register('ownerName')}
+            hasError={!!errors.ownerName}
           />
-          <FormSelect
-            id="visitType"
-            label="Type of visit"
-            options={visitTypes}
-            placeholder="Select visit type"
-            defaultValue=""
-            {...register('visitType')}
-            error={errors.visitType?.message}
-          />
+        </FormField>
+
+        <div className="grid gap-6 sm:grid-cols-2">
+          <FormField label="Phone number" htmlFor="phone" error={errors.phone?.message}>
+            <FormInput
+              id="phone"
+              placeholder="+353 1 123 4567"
+              type="tel"
+              {...register('phone')}
+              hasError={!!errors.phone}
+            />
+          </FormField>
+
+          <FormField label="Email address" htmlFor="email" error={errors.email?.message}>
+            <FormInput
+              id="email"
+              placeholder="you@email.com"
+              type="email"
+              {...register('email')}
+              hasError={!!errors.email}
+            />
+          </FormField>
         </div>
-        <FormTextArea
-          id="message"
-          label="Notes / symptoms"
-          placeholder="Let us know if your pet has ongoing meds, allergies, or specific concerns."
-          {...register('message')}
-          error={errors.message?.message}
-        />
+
+        <div className="grid gap-6 sm:grid-cols-2">
+          <FormField label="Pet name" htmlFor="petName" error={errors.petName?.message}>
+            <FormInput
+              id="petName"
+              placeholder="Finn"
+              type="text"
+              {...register('petName')}
+              hasError={!!errors.petName}
+            />
+          </FormField>
+
+          <FormField label="Type of visit" htmlFor="visitType" error={errors.visitType?.message}>
+            <FormSelect
+              id="visitType"
+              options={visitTypes}
+              placeholder="Select visit type"
+              defaultValue=""
+              {...register('visitType')}
+              hasError={!!errors.visitType}
+            />
+          </FormField>
+        </div>
+        <FormField label="Notes / symptoms" htmlFor="message" error={errors.message?.message}>
+          <FormTextArea
+            id="message"
+            placeholder="Let us know if your pet has ongoing meds, allergies, or specific concerns."
+            {...register('message')}
+            hasError={!!errors.message}
+          />
+        </FormField>
 
         <button
-          className="w-full rounded-full bg-teal-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
+          className="w-full rounded-full bg-teal-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-teal-700 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
           type="submit"
+          disabled={isSubmitting}
         >
-          Request callback
+          {isSubmitting ? (
+            <span className="flex items-center justify-center gap-2">
+              <ImSpinner2 className="h-4 w-4 animate-spin" />
+              Sending...
+            </span>
+          ) : (
+            'Request callback'
+          )}
         </button>
         <p className="text-center text-xs text-slate-400">
           By submitting you agree to be contacted via phone or email within
