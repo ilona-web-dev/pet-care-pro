@@ -1,4 +1,4 @@
-import TeamMember from '../TeamMember';
+import TeamMember from '../../components/shared/TeamMember';
 import aoifeVetDoc from '../../assets/team/aoife-gallagher.jpg';
 import maireVetDoc from '../../assets/team/maire-osullivan.jpg';
 import cianVetDoc from '../../assets/team/cian-mcdonnell.jpg';

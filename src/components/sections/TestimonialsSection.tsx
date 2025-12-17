@@ -1,4 +1,4 @@
-import Testimonial from '../Testimonial';
+import Testimonial from '../shared/Testimonial';
 
 import seamusReview from '../../assets/testimonials/testimonial1.jpg';
 import kenjiReview from '../../assets/testimonials/testimonial2.jpg';
