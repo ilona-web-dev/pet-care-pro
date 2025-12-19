@@ -11,41 +11,41 @@ const adminNav = [
 
 export default function AdminLayout() {
   return (
-    <div className="flex min-h-screen bg-slate-50">
-      <aside className="flex w-64 flex-col border-r border-slate-200 bg-white">
-        <div className="px-6 py-6">
+    <div className="min-h-screen bg-slate-50 px-4 py-6">
+      <div className="mx-auto flex max-w-6xl gap-6">
+        <aside className="w-64 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100">
           <Logo />
-          <p className="mt-1 text-xs tracking-wide text-slate-500 uppercase">
+          <p className="mt-8 text-xs tracking-wide text-slate-500 uppercase">
             Admin portal
           </p>
-        </div>
-        <nav className="flex flex-col gap-1 px-3">
-          {adminNav.map((item) => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              className={({ isActive }) =>
-                clsx(
-                  'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
-                  isActive
-                    ? 'bg-teal-50 text-teal-700'
-                    : 'text-slate-600 hover:bg-slate-100',
-                )
-              }
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
-      </aside>
-      <main className="flex-1 px-8 py-6">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6">
-          <AdminHeader />
-          <section className="flex-1 overflow-y-auto">
-            <Outlet />
-          </section>
-        </div>
-      </main>
+          <nav className="mt-6 flex flex-col gap-2">
+            {adminNav.map((item) => (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                className={({ isActive }) =>
+                  clsx(
+                    'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition',
+                    isActive
+                      ? 'bg-teal-50 text-teal-700'
+                      : 'text-slate-600 hover:bg-slate-100',
+                  )
+                }
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </aside>
+        <main className="flex-1">
+          <div className="rounded-3xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-100">
+            <AdminHeader />
+            <section className="mt-6">
+              <Outlet />
+            </section>
+          </div>
+        </main>
+      </div>
     </div>
   );
 }

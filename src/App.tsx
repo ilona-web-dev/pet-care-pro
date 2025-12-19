@@ -5,7 +5,6 @@ import { Navigate } from 'react-router-dom';
 import PublicLayout from './layouts/PublicLayout';
 import AdminLayout from './layouts/AdminLayout';
 
-import AdminDashboard from './pages/AdminDashboard';
 import Home from './pages/Home';
 import AdminClients from './pages/AdminClients';
 import AdminPets from './pages/AdminPets';
