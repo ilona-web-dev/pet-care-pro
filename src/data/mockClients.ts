@@ -1,0 +1,58 @@
+import type { Client } from '../types/admin';
+
+export const mockClients: Client[] = [
+  {
+    id: 'c1',
+    fullName: 'Aoife Murphy',
+    email: 'aoife@example.com',
+    phone: '+353 1 123 4567',
+    address: 'Dublin 2',
+    notes: 'Has two cats',
+    createdAt: '2024-11-20T09:00:00Z',
+  },
+  {
+    id: 'c2',
+    fullName: 'Liam O’Connor',
+    email: 'liam.oconnor@example.com',
+    phone: '+353 87 234 5678',
+    address: 'Cork',
+    notes: 'Prefers email communication',
+    createdAt: '2024-11-22T14:30:00Z',
+  },
+  {
+    id: 'c3',
+    fullName: 'Siobhán Kelly',
+    email: 'siobhan.kelly@example.com',
+    phone: '+353 86 345 6789',
+    address: 'Galway',
+    notes: 'Interested in long-term plans',
+    createdAt: '2024-11-25T10:15:00Z',
+  },
+  {
+    id: 'c4',
+    fullName: 'Patrick Byrne',
+    email: 'patrick.byrne@example.com',
+    phone: '+353 85 456 7890',
+    address: 'Limerick',
+    notes: 'Requested callback in the evenings',
+    createdAt: '2024-11-28T16:45:00Z',
+  },
+  {
+    id: 'c5',
+    fullName: 'Niamh Doyle',
+    email: 'niamh.doyle@example.com',
+    phone: '+353 83 567 8901',
+    address: 'Waterford',
+    notes: 'Referred by existing client',
+    createdAt: '2024-12-01T08:50:00Z',
+  },
+  {
+    id: 'c6',
+    fullName: 'Sean Walsh',
+    email: 'sean.walsh@example.com',
+    phone: '+353 89 678 9012',
+    address: 'Dublin 8',
+    notes: 'First-time customer',
+    createdAt: '2024-12-03T11:20:00Z',
+  },
+];
