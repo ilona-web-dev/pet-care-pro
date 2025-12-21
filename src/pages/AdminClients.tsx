@@ -1,20 +1,54 @@
 import {
+  Alert,
+  CircularProgress,
+  IconButton,
   Paper,
   Table,
   TableBody,
   TableCell,
+  TableContainer,
   TableHead,
   TableRow,
-  TableContainer,
-  IconButton,
+  Typography,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { mockClients } from '../../src/data/mockCLients';
+import { useClientsQuery } from '../hooks/useClientsQuery';
 
 export default function AdminClients() {
+  const {
+    data: clients = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useClientsQuery();
+
   return (
-    <div>
+    <div className="space-y-3">
+      {isLoading && (
+        <div className="flex items-center justify-center py-10">
+          <CircularProgress size={32} />
+        </div>
+      )}
+
+      {isError && (
+        <Alert
+          severity="error"
+          action={
+            <button
+              type="button"
+              className="text-sm font-semibold text-blue-600 underline"
+              onClick={() => refetch()}
+            >
+              Try again
+            </button>
+          }
+        >
+          Failed to load clients. {error?.message}
+        </Alert>
+      )}
+
       <TableContainer
         component={Paper}
         elevation={0}
@@ -32,7 +66,7 @@ export default function AdminClients() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {mockClients.map((client) => (
+            {clients.map((client) => (
               <TableRow key={client.id}>
                 <TableCell>
                   <div className="flex items-center gap-2">
@@ -56,7 +90,9 @@ export default function AdminClients() {
                 <TableCell>{client.address ?? '-'}</TableCell>
                 <TableCell>
                   {client.notes ? (
-                    <span>{client.notes}</span>
+                    <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
+                      {client.notes}
+                    </span>
                   ) : (
                     <span className="text-slate-400">—</span>
                   )}
@@ -71,9 +107,13 @@ export default function AdminClients() {
                 </TableCell>
               </TableRow>
             ))}
-            {!mockClients.length && (
+            {!isLoading && !clients.length && (
               <TableRow>
-                <TableCell colSpan={6}>No clients yet.</TableCell>
+                <TableCell colSpan={6}>
+                  <Typography variant="body2" color="text.secondary">
+                    No clients yet.
+                  </Typography>
+                </TableCell>
               </TableRow>
             )}
           </TableBody>
