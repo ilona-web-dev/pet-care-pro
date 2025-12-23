@@ -1,43 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { supabase } from '../lib/supabaseClient';
-
-import type { Client } from '../types/admin';
-
-type ClientRow = {
-  id: string;
-  full_name: string;
-  email: string;
-  phone: string;
-  address: string | null;
-  notes: string | null;
-  created_at: string;
-};
-
-export const mapClient = (row: ClientRow): Client => ({
-  id: row.id,
-  fullName: row.full_name,
-  email: row.email,
-  phone: row.phone,
-  address: row.address ?? '',
-  notes: row.notes ?? '',
-  createdAt: row.created_at,
-});
+import { fetchClients } from '../services/clients';
 
 export function useClientsQuery() {
   return useQuery({
     queryKey: ['clients'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('clients')
-        .select('*')
-        .order('created_at')
-        .returns<ClientRow[]>();
-      if (error) {
-        console.error('Error loading clients', error);
-        throw error;
-      }
-      return (data ?? []).map(mapClient);
-    },
+    queryFn: fetchClients,
     retry: 1,
   });
 }
