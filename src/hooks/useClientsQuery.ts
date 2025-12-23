@@ -3,7 +3,17 @@ import { supabase } from '../lib/supabaseClient';
 
 import type { Client } from '../types/admin';
 
-const mapClient = (row: any): Client => ({
+type ClientRow = {
+  id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  address: string | null;
+  notes: string | null;
+  created_at: string;
+};
+
+export const mapClient = (row: ClientRow): Client => ({
   id: row.id,
   fullName: row.full_name,
   email: row.email,
@@ -20,12 +30,13 @@ export function useClientsQuery() {
       const { data, error } = await supabase
         .from('clients')
         .select('*')
-        .order('created_at');
+        .order('created_at')
+        .returns<ClientRow[]>();
       if (error) {
         console.error('Error loading clients', error);
         throw error;
       }
-      return data.map(mapClient);
+      return (data ?? []).map(mapClient);
     },
     retry: 1,
   });

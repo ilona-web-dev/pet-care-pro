@@ -1,7 +1,6 @@
 import { NavLink, Outlet } from 'react-router-dom';
 import clsx from 'clsx';
 import Logo from '../components/shared/Logo';
-import AdminHeader from '../components/admin/AdminHeader';
 
 const adminNav = [
   { path: '/admin/clients', label: 'Clients' },
@@ -39,7 +38,6 @@ export default function AdminLayout() {
         </aside>
         <main className="mt-6 flex-1 lg:mt-0">
           <div className="rounded-3xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-100">
-            <AdminHeader />
             <section className="mt-6">
               <Outlet />
             </section>

@@ -28,13 +28,12 @@ const contactSchema = z.object({
 
 type ContactFormValues = z.infer<typeof contactSchema>;
 
-const simulateRequest = (values: ContactFormValues) =>
-  new Promise<void>((resolve) => {
-    setTimeout(() => {
-      console.log('Contact request', values);
-      resolve();
-    }, 1200);
+function simulateRequest(values: ContactFormValues) {
+  void values;
+  return new Promise<void>((resolve) => {
+    setTimeout(() => resolve(), 1200);
   });
+}
 
 export default function ContactForm() {
   const {
@@ -56,14 +55,12 @@ export default function ContactForm() {
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      await toast.promise(simulateRequest(values), {
-        loading: 'Sending request...',
-        success: 'Thanks! We will call or email you shortly.',
-        error: 'Something went wrong. Please try again.',
-      });
+      await simulateRequest(values);
+      toast.success('Request sent! Our team will reach out shortly.');
       reset();
     } catch (error) {
-      // toast.promise already handled the error state
+      console.error(error);
+      toast.error('Something went wrong. Please try again.');
     }
   });
 
