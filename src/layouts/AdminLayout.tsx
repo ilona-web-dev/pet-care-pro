@@ -12,7 +12,7 @@ export default function AdminLayout() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-6">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 lg:flex-row">
-        <aside className="w-full min-w-[240px] rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 lg:w-64">
+        <aside className="w-full min-w-60 rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-100 lg:w-64">
           <Logo />
           <p className="mt-8 text-xs tracking-wide text-slate-500 uppercase">
             Admin portal
@@ -36,7 +36,7 @@ export default function AdminLayout() {
             ))}
           </nav>
         </aside>
-        <main className="mt-6 flex-1 lg:mt-0">
+        <main className="mt-6 flex-1 overflow-x-hidden lg:mt-0">
           <div className="rounded-3xl bg-white px-6 py-6 shadow-sm ring-1 ring-slate-100">
             <section className="mt-6">
               <Outlet />
