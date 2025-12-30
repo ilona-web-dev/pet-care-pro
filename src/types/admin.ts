@@ -40,3 +40,10 @@ export type Visit = {
   notes?: string;
   createdAt: string;
 };
+
+export type Vet = {
+  id: string;
+  fullName: string;
+  role: string;
+  yearsExperience: number;
+};
