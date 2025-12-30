@@ -8,14 +8,17 @@ export type Client = {
   createdAt: string;
 };
 
+export type PetSpecies = 'dog' | 'cat' | 'bird' | 'other';
+export type PetSex = 'male' | 'female';
+
 export type Pet = {
   id: string;
   ownerId: string;
   name: string;
-  species: 'dog' | 'cat' | 'bird' | 'other';
+  species: PetSpecies;
   breed?: string;
-  sex?: 'male' | 'female';
-  birthdate?: string;
+  sex?: PetSex;
+  birthDate?: string;
   weightKg?: number;
   microchip?: string;
   notes?: string;

@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabaseClient';
 import type { Client } from '../types/admin';
 
+// Raw row returned from Supabase (snake_case + nullable fields)
 export type ClientRow = {
   id: string;
   full_name: string;
@@ -11,6 +12,7 @@ export type ClientRow = {
   created_at: string;
 };
 
+// Payload passed from UI when creating a client
 export type CreateClientPayload = {
   fullName: string;
   email: string;
@@ -19,6 +21,7 @@ export type CreateClientPayload = {
   notes?: string;
 };
 
+// Maps DB row into our domain Client model (camelCase + defaults)
 export const mapClient = (row: ClientRow): Client => ({
   id: row.id,
   fullName: row.full_name,
@@ -29,24 +32,24 @@ export const mapClient = (row: ClientRow): Client => ({
   createdAt: row.created_at,
 });
 
+// Fetches all clients from Supabase
 export async function fetchClients(): Promise<Client[]> {
-  const { data, error } = await supabase
+  const { data: clients, error } = await supabase
     .from('clients')
     .select('*')
-    .order('created_at')
-    .returns<ClientRow[]>();
+    .order('created_at');
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
 
-  return (data ?? []).map(mapClient);
+  const rows = (clients ?? []) as ClientRow[];
+  return rows.map(mapClient);
 }
 
+// Creates a new client and returns mapped result
 export async function createClient(
   payload: CreateClientPayload,
 ): Promise<Client> {
-  const { data, error } = await supabase
+  const { data: client, error } = await supabase
     .from('clients')
     .insert({
       full_name: payload.fullName,
@@ -62,5 +65,5 @@ export async function createClient(
     throw error;
   }
 
-  return mapClient(data);
+  return mapClient(client);
 }
