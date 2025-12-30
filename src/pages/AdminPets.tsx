@@ -38,7 +38,7 @@ export default function AdminPets() {
   );
 
   return (
-    <div className="w-full space-y-3 overflow-x-auto">
+    <div className="-mx-6 overflow-x-auto px-6">
       <AdminHeader
         title="Pet records"
         btnText="Add new pet"
@@ -73,9 +73,13 @@ export default function AdminPets() {
           <TableContainer
             component={Paper}
             elevation={0}
-            sx={{ borderRadius: 3, minWidth: 'max-content' }}
+            sx={{
+              borderRadius: 3,
+              width: '100%',
+              minWidth: 0,
+            }}
           >
-            <Table sx={{ minWidth: 1100 }}>
+            <Table sx={{ maxWidth: '100%' }}>
               <TableHead>
                 <TableRow
                   sx={{
@@ -118,18 +122,12 @@ export default function AdminPets() {
                     </TableCell>
 
                     <TableCell>{pet.name}</TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                      {pet.birthDate}
-                    </TableCell>
+                    <TableCell>{pet.birthDate}</TableCell>
                     <TableCell>{pet.species}</TableCell>
                     <TableCell>{pet.breed ?? '-'}</TableCell>
                     <TableCell>{pet.sex}</TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                      {pet.microchip ?? '-'}
-                    </TableCell>
-                    <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                      {pet.weightKg + 'kg'}
-                    </TableCell>
+                    <TableCell>{pet.microchip ?? '-'}</TableCell>
+                    <TableCell>{pet.weightKg + 'kg'}</TableCell>
                     <TableCell>
                       {pet.notes ? (
                         <span className="text-xs text-slate-600">
