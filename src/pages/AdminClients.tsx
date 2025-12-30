@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Alert,
   CircularProgress,
@@ -11,14 +12,18 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import AdminHeader from '../components/admin/AdminHeader';
+import ClientFormDialog from '../components/admin/ClientFormDialog';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useClientsQuery } from '../hooks/useClientsQuery';
 
 export default function AdminClients() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const {
     data: clients = [],
-    isLoading,
+    isPending,
     isError,
     error,
     refetch,
@@ -26,7 +31,16 @@ export default function AdminClients() {
 
   return (
     <div className="space-y-3">
-      {isLoading && (
+      <AdminHeader
+        title="Client records"
+        btnText="Add new client"
+        onAction={() => setIsDialogOpen(true)}
+      />
+      <ClientFormDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+      />
+      {isPending && (
         <div className="flex items-center justify-center py-10">
           <CircularProgress size={32} />
         </div>
@@ -49,76 +63,88 @@ export default function AdminClients() {
         </Alert>
       )}
 
-      <TableContainer
-        component={Paper}
-        elevation={0}
-        sx={{ borderRadius: 3, width: '100%', overflowX: 'auto' }}
-      >
-        <Table sx={{ minWidth: 650 }}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Client</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Phone</TableCell>
-              <TableCell>Address</TableCell>
-              <TableCell>Notes</TableCell>
-              <TableCell align="right">Actions</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {clients.map((client) => (
-              <TableRow key={client.id}>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <div className="rounded-full bg-teal-50 px-3 py-1 text-xs text-teal-700">
-                      {client.fullName.slice(0, 1)}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-800">
-                        {client.fullName}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        ID: {client.id.slice(0, 8)}
-                      </p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>{client.email}</TableCell>
-                <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                  {client.phone}
-                </TableCell>
-                <TableCell>{client.address ?? '-'}</TableCell>
-                <TableCell>
-                  {client.notes ? (
-                    <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700">
-                      {client.notes}
-                    </span>
-                  ) : (
-                    <span className="text-slate-400">—</span>
-                  )}
-                </TableCell>
-                <TableCell align="right">
-                  <IconButton size="small" color="primary">
-                    <EditIcon fontSize="small" />
-                  </IconButton>
-                  <IconButton size="small" color="error">
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                </TableCell>
+      {!isPending && !isError && (
+        <TableContainer
+          component={Paper}
+          elevation={0}
+          sx={{
+            borderRadius: 3,
+            width: '100%',
+          }}
+        >
+          <Table>
+            <TableHead>
+              <TableRow
+                sx={{
+                  '& .MuiTableCell-root': {
+                    fontWeight: 600,
+                    color: 'text.primary',
+                  },
+                }}
+              >
+                <TableCell>Client</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Phone</TableCell>
+                <TableCell>Address</TableCell>
+                <TableCell>Notes</TableCell>
+                <TableCell align="right">Actions</TableCell>
               </TableRow>
-            ))}
-            {!isLoading && !clients.length && (
-              <TableRow>
-                <TableCell colSpan={6}>
-                  <Typography variant="body2" color="text.secondary">
-                    No clients yet.
-                  </Typography>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
+            </TableHead>
+            <TableBody>
+              {clients.map((client) => (
+                <TableRow key={client.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <div className="rounded-full bg-teal-50 px-3 py-1 text-xs text-teal-700">
+                        {client.fullName.slice(0, 1)}
+                      </div>
+                      <div>
+                        <p className="font-semibold text-slate-800">
+                          {client.fullName}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          ID: {client.id.slice(0, 8)}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{client.email}</TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                    {client.phone}
+                  </TableCell>
+                  <TableCell>{client.address ?? '-'}</TableCell>
+                  <TableCell>
+                    {client.notes ? (
+                      <span className="text-xs text-slate-600">
+                        {client.notes}
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton size="small" color="primary">
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" color="error">
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+              {!isPending && !clients.length && (
+                <TableRow>
+                  <TableCell colSpan={6}>
+                    <Typography variant="body2" color="text.secondary">
+                      No clients yet.
+                    </Typography>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </div>
   );
 }
