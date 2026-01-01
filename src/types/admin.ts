@@ -30,16 +30,22 @@ export type VisitStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled';
 export type Visit = {
   id: string;
   petId: string;
+  vetId: string;
   visitDate: string;
-  reason: string;
+  reason: VisitReason;
   status: VisitStatus;
   vetName?: string;
   diagnosis?: string;
   treatment?: string;
   invoiceAmount?: number;
   notes?: string;
-  createdAt: string;
 };
+export type VisitReason =
+  | 'vaccination'
+  | 'routine_checkup'
+  | 'follow_up'
+  | 'grooming'
+  | 'other';
 
 export type Vet = {
   id: string;
