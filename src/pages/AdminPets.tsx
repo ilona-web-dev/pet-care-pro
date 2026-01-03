@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import AdminHeader from '../components/admin/AdminHeader';
 import { usePetsQuery } from '../hooks/usePetsQuery';
 import { useClientsQuery } from '../hooks/useClientsQuery';
@@ -17,8 +17,10 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import PetFormDialog from '../components/admin/PetFormDialog';
 
 export default function AdminPets() {
+  const [isDialogOpen, setDialogOpen] = useState(false);
   const {
     data: pets = [],
     isPending,
@@ -42,7 +44,12 @@ export default function AdminPets() {
       <AdminHeader
         title="Pet records"
         btnText="Add new pet"
-        onAction={() => alert('I will add new pet')}
+        onAction={() => setDialogOpen(true)}
+      />
+
+      <PetFormDialog
+        open={isDialogOpen}
+        onClose={() => setDialogOpen(false)}
       />
 
       {isError && (
