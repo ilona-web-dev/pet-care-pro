@@ -5,9 +5,6 @@ type SelectOption = {
   value: string;
   label: string;
   disabled?: boolean;
-  error?: string;
-  hasError?: boolean;
-  placeholder: string;
 };
 
 type FormSelectProps = SelectHTMLAttributes<HTMLSelectElement> & {
