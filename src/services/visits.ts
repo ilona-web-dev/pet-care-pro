@@ -15,7 +15,7 @@ export type VisitRow = {
   notes: string | null;
 };
 
-type CreateVisitPayload = {
+export type CreateVisitPayload = {
   petId: string;
   vetId: string;
   visitDate: string;
