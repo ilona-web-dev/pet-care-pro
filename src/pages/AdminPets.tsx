@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import AdminHeader from '../components/admin/AdminHeader';
 import { usePetsQuery } from '../hooks/usePetsQuery';
-import { useClientsQuery } from '../hooks/useClientsQuery';
+
 import {
   Alert,
   Paper,
@@ -18,6 +18,7 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PetFormDialog from '../components/admin/PetFormDialog';
+import useOwnerNameMap from '../hooks/useOwnerNameMap';
 
 export default function AdminPets() {
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -29,15 +30,8 @@ export default function AdminPets() {
     refetch,
   } = usePetsQuery();
 
-  const { data: clients = [] } = useClientsQuery();
-  const ownersById = useMemo(
-    () =>
-      clients.reduce<Record<string, string>>((acc, client) => {
-        acc[client.id] = client.fullName;
-        return acc;
-      }, {}),
-    [clients],
-  );
+  // Returns a memoized map of client ID -> full name for quick lookups
+  const ownerNameById = useOwnerNameMap();
 
   return (
     <div className="-mx-6 overflow-x-auto px-6">
@@ -47,10 +41,7 @@ export default function AdminPets() {
         onAction={() => setDialogOpen(true)}
       />
 
-      <PetFormDialog
-        open={isDialogOpen}
-        onClose={() => setDialogOpen(false)}
-      />
+      <PetFormDialog open={isDialogOpen} onClose={() => setDialogOpen(false)} />
 
       {isError && (
         <Alert
@@ -112,10 +103,10 @@ export default function AdminPets() {
                 {pets.map((pet) => (
                   <TableRow key={pet.id}>
                     <TableCell>
-                      {ownersById[pet.ownerId] ? (
+                      {ownerNameById[pet.ownerId] ? (
                         <div className="flex flex-col">
                           <span className="font-semibold text-slate-800">
-                            {ownersById[pet.ownerId]}
+                            {ownerNameById[pet.ownerId]}
                           </span>
                           <span className="text-xs text-slate-500">
                             ID: {pet.ownerId.slice(0, 8)}
@@ -144,7 +135,7 @@ export default function AdminPets() {
                         <span className="text-slate-400">—</span>
                       )}
                     </TableCell>
-                    <TableCell align="right">
+                    <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                       <IconButton size="small" color="primary">
                         <EditIcon fontSize="small" />
                       </IconButton>

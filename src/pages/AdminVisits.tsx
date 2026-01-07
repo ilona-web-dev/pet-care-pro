@@ -2,6 +2,8 @@ import { useState } from 'react';
 import AdminHeader from '../components/admin/AdminHeader';
 import useVisitsQuery from '../hooks/useVisitsQuery';
 import VisitFormDialog from '../components/admin/VisitFormDialog';
+import useVetNameMap from '../hooks/useVetNameMap';
+import usePetNameMap from '../hooks/usePetNameMap';
 
 import {
   Alert,
@@ -30,6 +32,9 @@ export default function AdminVisits() {
     error,
     refetch,
   } = useVisitsQuery();
+
+  const vetNameById = useVetNameMap();
+  const petNameById = usePetNameMap();
 
   return (
     <div className="space-y-3">
@@ -101,14 +106,24 @@ export default function AdminVisits() {
                     {new Date(visit.visitDate).toLocaleDateString()}
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs text-slate-500">
-                      ID: {visit.petId.slice(0, 8)}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-slate-800">
+                        {petNameById[visit.petId] ?? 'Unknown pet'}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        ID: {visit.petId.slice(0, 8)}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs text-slate-500">
-                      ID: {visit.vetId.slice(0, 8)}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-slate-800">
+                        {vetNameById[visit.vetId] ?? 'Unknown vet'}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        ID: {visit.vetId.slice(0, 8)}
+                      </span>
+                    </div>
                   </TableCell>
                   <TableCell className="capitalize">
                     {visit.reason.replace('_', ' ')}

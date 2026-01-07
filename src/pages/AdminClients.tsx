@@ -122,7 +122,7 @@ export default function AdminClients() {
                       <span className="text-slate-400">—</span>
                     )}
                   </TableCell>
-                  <TableCell align="right">
+                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                     <IconButton size="small" color="primary">
                       <EditIcon fontSize="small" />
                     </IconButton>
