@@ -1,3 +1,8 @@
+import { useState } from 'react';
+import AdminHeader from '../components/admin/AdminHeader';
+import useVisitsQuery from '../hooks/useVisitsQuery';
+import VisitFormDialog from '../components/admin/VisitFormDialog';
+
 import {
   Alert,
   CircularProgress,
@@ -9,11 +14,15 @@ import {
   TableHead,
   TableRow,
   Typography,
+  IconButton,
 } from '@mui/material';
-import AdminHeader from '../components/admin/AdminHeader';
-import useVisitsQuery from '../hooks/useVisitsQuery';
+
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function AdminVisits() {
+  const [isDialogOpen, setDialogOpen] = useState(false);
+
   const {
     data: visits = [],
     isPending,
@@ -27,7 +36,11 @@ export default function AdminVisits() {
       <AdminHeader
         title="Visit records"
         btnText="Add new visit"
-        onAction={() => alert('Visit form coming soon')}
+        onAction={() => setDialogOpen(true)}
+      />
+      <VisitFormDialog
+        open={isDialogOpen}
+        onClose={() => setDialogOpen(false)}
       />
 
       {isPending && (
@@ -75,8 +88,10 @@ export default function AdminVisits() {
                 <TableCell>Reason</TableCell>
                 <TableCell>Status</TableCell>
                 <TableCell>Diagnosis</TableCell>
+                <TableCell>Treatment</TableCell>
                 <TableCell>Invoice</TableCell>
                 <TableCell>Notes</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -104,6 +119,7 @@ export default function AdminVisits() {
                     </span>
                   </TableCell>
                   <TableCell>{visit.diagnosis ?? '—'}</TableCell>
+                  <TableCell>{visit.treatment ?? '—'}</TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap' }}>
                     {visit.invoiceAmount ? `€${visit.invoiceAmount}` : '—'}
                   </TableCell>
@@ -116,11 +132,19 @@ export default function AdminVisits() {
                       <span className="text-slate-400">—</span>
                     )}
                   </TableCell>
+                  <TableCell sx={{ whiteSpace: 'nowrap' }}>
+                    <IconButton size="small" color="primary">
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton size="small" color="error">
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
                 </TableRow>
               ))}
               {!visits.length && (
                 <TableRow>
-                  <TableCell colSpan={8}>
+                  <TableCell colSpan={10}>
                     <Typography variant="body2" color="text.secondary">
                       No visits yet.
                     </Typography>
