@@ -92,7 +92,7 @@ export default function PetFormDialog({ open, onClose }: Props) {
           Cancel
         </Button>
         <Button type="submit" form="pet-form" disabled={isPending}>
-          {isPending ? 'Saving...' : 'Save'}
+          {isPending ? 'Adding...' : 'Add'}
         </Button>
       </DialogActions>
     </Dialog>

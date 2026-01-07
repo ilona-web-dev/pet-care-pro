@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import type { SelectHTMLAttributes } from 'react';
 
-type SelectOption = {
+export type SelectOption = {
   value: string;
   label: string;
   disabled?: boolean;

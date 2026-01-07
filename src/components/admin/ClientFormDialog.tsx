@@ -69,7 +69,7 @@ export default function ClientFormDialog({ open, onClose }: Props) {
           Cancel
         </Button>
         <Button type="submit" form="client-form" disabled={isPending}>
-          {isPending ? 'Saving....' : 'Save'}
+          {isPending ? 'Adding....' : 'Add'}
         </Button>
       </DialogActions>
     </Dialog>

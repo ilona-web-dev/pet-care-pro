@@ -25,6 +25,13 @@ export type Pet = {
   createdAt: string;
 };
 
+export type VisitReason =
+  | 'vaccination'
+  | 'routine_checkup'
+  | 'follow_up'
+  | 'grooming'
+  | 'other';
+
 export type VisitStatus = 'planned' | 'in_progress' | 'completed' | 'cancelled';
 
 export type Visit = {
@@ -40,12 +47,6 @@ export type Visit = {
   invoiceAmount?: number;
   notes?: string;
 };
-export type VisitReason =
-  | 'vaccination'
-  | 'routine_checkup'
-  | 'follow_up'
-  | 'grooming'
-  | 'other';
 
 export type Vet = {
   id: string;
