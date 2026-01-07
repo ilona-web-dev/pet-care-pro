@@ -12,7 +12,7 @@ import VisitFormContent from './VisitFormContent';
 import useCreateVisitMutation from '../../hooks/useCreateVisitMutation';
 import { usePetsQuery } from '../../hooks/usePetsQuery';
 import { useVetsQuery } from '../../hooks/useVetsQuery';
-import useOwnersMap from '../../hooks/useOwnersMap';
+import useOwnerNameMap from '../../hooks/useOwnerNameMap';
 import toast from 'react-hot-toast';
 
 const visitSchema = z.object({
@@ -77,7 +77,7 @@ export default function VisitFormDialog({ open, onClose }: Props) {
 
   const { data: pets = [] } = usePetsQuery();
   const { data: vets = [] } = useVetsQuery();
-  const ownerNameById = useOwnersMap();
+  const ownerNameById = useOwnerNameMap();
 
   const petOptions = pets
     .slice()
