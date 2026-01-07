@@ -6,6 +6,7 @@ const adminNav = [
   { path: '/admin/clients', label: 'Clients' },
   { path: '/admin/pets', label: 'Pets' },
   { path: '/admin/visits', label: 'Visits' },
+  { path: '/admin/vets', label: 'Vets' },
 ];
 
 export default function AdminLayout() {
