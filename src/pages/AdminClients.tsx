@@ -17,9 +17,14 @@ import ClientFormDialog from '../components/admin/ClientFormDialog';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useClientsQuery } from '../hooks/useClientsQuery';
+import useDeleteClientMutation from '../hooks/useDeleteClientMutation';
+import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 
 export default function AdminClients() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<string | null>(null);
+  const { mutate: deleteClient, isPending: isDeleting } =
+    useDeleteClientMutation();
 
   const {
     data: clients = [],
@@ -45,6 +50,20 @@ export default function AdminClients() {
           <CircularProgress size={32} />
         </div>
       )}
+      <DeleteConfirmDialog
+        open={!!clientToDelete}
+        title="Delete client"
+        message="This action cannot be undone."
+        confirmLabel={isDeleting ? 'Deleting…' : 'Delete'}
+        onConfirm={() => {
+          if (clientToDelete) {
+            deleteClient(clientToDelete, {
+              onSettled: () => setClientToDelete(null),
+            });
+          }
+        }}
+        onCancel={() => setClientToDelete(null)}
+      />
 
       {isError && (
         <Alert
@@ -126,7 +145,11 @@ export default function AdminClients() {
                     <IconButton size="small" color="primary">
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" color="error">
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => setClientToDelete(client.id)}
+                    >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>

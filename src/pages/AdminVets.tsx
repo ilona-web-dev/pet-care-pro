@@ -16,8 +16,14 @@ import {
 import AdminHeader from '../components/admin/AdminHeader';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useState } from 'react';
+import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
+import useDeleteVetMutation from '../hooks/useDeleteVetMutation';
 
 export default function AdminVets() {
+  const [vetToDelete, setVetToDelete] = useState<string | null>(null);
+  const { mutate: deleteVet, isPending: isDeleting } = useDeleteVetMutation();
+
   const {
     data: vets = [],
     isPending,
@@ -35,6 +41,20 @@ export default function AdminVets() {
           <CircularProgress size={32} />
         </div>
       )}
+
+      <DeleteConfirmDialog
+        open={!!vetToDelete}
+        title="Delete vet"
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete'}
+        onConfirm={() => {
+          if (vetToDelete) {
+            deleteVet(vetToDelete, {
+              onSettled: () => setVetToDelete(null),
+            });
+          }
+        }}
+        onCancel={() => setVetToDelete(null)}
+      />
 
       {isError && (
         <Alert
@@ -90,7 +110,11 @@ export default function AdminVets() {
                     <IconButton size="small" color="primary">
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" color="error">
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => setVetToDelete(vet.id)}
+                    >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>

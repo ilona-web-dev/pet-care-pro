@@ -19,9 +19,14 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import PetFormDialog from '../components/admin/PetFormDialog';
 import useOwnerNameMap from '../hooks/useOwnerNameMap';
+import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
+import useDeletePetMutation from '../hooks/useDeletePetMutation';
 
 export default function AdminPets() {
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [petToDelete, setPetToDelele] = useState<string | null>(null);
+  const { mutate: deletePet, isPending: isDeleting } = useDeletePetMutation();
+
   const {
     data: pets = [],
     isPending,
@@ -40,9 +45,21 @@ export default function AdminPets() {
         btnText="Add new pet"
         onAction={() => setDialogOpen(true)}
       />
-
       <PetFormDialog open={isDialogOpen} onClose={() => setDialogOpen(false)} />
 
+      <DeleteConfirmDialog
+        open={!!petToDelete}
+        title="Delete pet"
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete'}
+        onConfirm={() => {
+          if (petToDelete) {
+            deletePet(petToDelete, {
+              onSettled: () => setPetToDelele(null),
+            });
+          }
+        }}
+        onCancel={() => setPetToDelele(null)}
+      />
       {isError && (
         <Alert
           severity="error"
@@ -59,13 +76,11 @@ export default function AdminPets() {
           Failed to load pets. {error?.message}
         </Alert>
       )}
-
       {isPending && (
         <div className="flex items-center justify-center py-10">
           <CircularProgress size={32} />
         </div>
       )}
-
       {!isPending && !isError && (
         <div className="-mx-4 overflow-x-auto px-4">
           <TableContainer
@@ -139,7 +154,11 @@ export default function AdminPets() {
                       <IconButton size="small" color="primary">
                         <EditIcon fontSize="small" />
                       </IconButton>
-                      <IconButton size="small" color="error">
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => setPetToDelele(pet.id)}
+                      >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
                     </TableCell>

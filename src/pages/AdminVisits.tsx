@@ -4,6 +4,7 @@ import useVisitsQuery from '../hooks/useVisitsQuery';
 import VisitFormDialog from '../components/admin/VisitFormDialog';
 import useVetNameMap from '../hooks/useVetNameMap';
 import usePetNameMap from '../hooks/usePetNameMap';
+import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 
 import {
   Alert,
@@ -21,9 +22,11 @@ import {
 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import useDeleteVisitMutation from '../hooks/useDeleteVisitMutation';
 
 export default function AdminVisits() {
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [visitToDelete, setVisitToDelete] = useState<string | null>(null);
 
   const {
     data: visits = [],
@@ -32,6 +35,9 @@ export default function AdminVisits() {
     error,
     refetch,
   } = useVisitsQuery();
+
+  const { mutate: deleteVisit, isPending: isDeleting } =
+    useDeleteVisitMutation();
 
   const vetNameById = useVetNameMap();
   const petNameById = usePetNameMap();
@@ -46,6 +52,22 @@ export default function AdminVisits() {
       <VisitFormDialog
         open={isDialogOpen}
         onClose={() => setDialogOpen(false)}
+      />
+
+      <DeleteConfirmDialog
+        open={!!visitToDelete}
+        title="Delete visit"
+        confirmLabel={isDeleting ? 'Deleting...' : 'Delete'}
+        onConfirm={() => {
+          if (visitToDelete) {
+            deleteVisit(visitToDelete, {
+              onSettled: () => setVisitToDelete(null),
+            });
+          }
+        }}
+        onCancel={() => {
+          setVisitToDelete(null);
+        }}
       />
 
       {isPending && (
@@ -148,7 +170,11 @@ export default function AdminVisits() {
                     )}
                   </TableCell>
                   <TableCell sx={{ whiteSpace: 'nowrap' }}>
-                    <IconButton size="small" color="primary">
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={() => setVisitToDelete(visit.id)}
+                    >
                       <EditIcon fontSize="small" />
                     </IconButton>
                     <IconButton size="small" color="error">
