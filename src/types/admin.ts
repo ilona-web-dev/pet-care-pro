@@ -53,5 +53,6 @@ export type Vet = {
   fullName: string;
   role: string;
   yearsExperience: number;
-  active: boolean;
+  isActive: boolean;
+  notes?: string;
 };
