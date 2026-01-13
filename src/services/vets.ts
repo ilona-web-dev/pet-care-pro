@@ -1,5 +1,5 @@
-import { type Vet } from '../types/admin';
 import { supabase } from '../lib/supabaseClient';
+import { type Vet } from '../types/admin';
 
 export type VetRow = {
   id: string;
@@ -19,13 +19,10 @@ type CreateVetPayload = {
   notes?: string;
 };
 
-export const mapCreateVetPayload = (payload: CreateVetPayload) => ({
-  full_name: payload.fullName,
-  role: payload.role,
-  years_experience: payload.yearsExperience,
-  is_active: payload.isActive,
-  notes: payload.notes ?? null,
-});
+type UpdateVetPayload = {
+  id: string;
+  data: Partial<CreateVetPayload>;
+};
 
 export const mapVet = (row: VetRow): Vet => ({
   id: row.id,
@@ -36,24 +33,52 @@ export const mapVet = (row: VetRow): Vet => ({
   notes: row.notes,
 });
 
+const mapCreateVetPayload = (payload: CreateVetPayload) => ({
+  full_name: payload.fullName,
+  role: payload.role,
+  years_experience: payload.yearsExperience,
+  is_active: payload.isActive,
+  notes: payload.notes ?? null,
+});
+
+const mapUpdateVetPayload = (payload: Partial<CreateVetPayload>) => ({
+  full_name: payload.fullName ?? undefined,
+  role: payload.role ?? undefined,
+  years_experience: payload.yearsExperience ?? undefined,
+  is_active: payload.isActive ?? undefined,
+  notes: payload.notes ?? undefined,
+});
+
 export async function fetchVets(): Promise<Vet[]> {
-  const { data: vets, error } = await supabase
+  const { data, error } = await supabase
     .from('vets')
     .select('*')
     .order('created_at');
 
   if (error) throw error;
-  const rows = (vets ?? []) as VetRow[];
+  const rows = (data ?? []) as VetRow[];
   return rows.map(mapVet);
 }
 
 export async function createVet(payload: CreateVetPayload): Promise<Vet> {
-  const { data: vet, error } = await supabase
+  const { data, error } = await supabase
     .from('vets')
     .insert(mapCreateVetPayload(payload))
     .select()
     .single<VetRow>();
 
   if (error) throw error;
-  return mapVet(vet);
+  return mapVet(data);
+}
+
+export async function updateVet({ id, data }: UpdateVetPayload): Promise<Vet> {
+  const { data: row, error } = await supabase
+    .from('vets')
+    .update(mapUpdateVetPayload(data))
+    .eq('id', id)
+    .select()
+    .single<VetRow>();
+
+  if (error) throw error;
+  return mapVet(row);
 }

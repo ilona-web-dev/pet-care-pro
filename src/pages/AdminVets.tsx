@@ -18,10 +18,15 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useState } from 'react';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
+import VetFormDialog from '../components/admin/VetFormDialog';
 import useDeleteVetMutation from '../hooks/useDeleteVetMutation';
+import { type Vet } from '../types/admin';
 
 export default function AdminVets() {
+  const [isDialogOpen, setDialogOpen] = useState(false);
   const [vetToDelete, setVetToDelete] = useState<string | null>(null);
+  const [editingVet, setEditingVet] = useState<Vet | null>(null);
+
   const { mutate: deleteVet, isPending: isDeleting } = useDeleteVetMutation();
 
   const {
@@ -34,7 +39,23 @@ export default function AdminVets() {
 
   return (
     <div className="space-y-3">
-      <AdminHeader title="Vet records" />
+      <AdminHeader
+        title="Vet records"
+        btnText="Add new vet"
+        onAction={() => {
+          setEditingVet(null);
+          setDialogOpen(true);
+        }}
+      />
+
+      <VetFormDialog
+        open={isDialogOpen}
+        initialValues={editingVet}
+        onClose={() => {
+          setDialogOpen(false);
+          setEditingVet(null);
+        }}
+      />
 
       {isPending && (
         <div className="flex items-center justify-center py-10">
@@ -95,6 +116,8 @@ export default function AdminVets() {
                 <TableCell>Vet name</TableCell>
                 <TableCell>Role</TableCell>
                 <TableCell>Years of experience</TableCell>
+                <TableCell>Is active</TableCell>
+                <TableCell>Notes</TableCell>
                 <TableCell align="right">Actions</TableCell>
               </TableRow>
             </TableHead>
@@ -106,8 +129,17 @@ export default function AdminVets() {
                   </TableCell>
                   <TableCell>{vet.role}</TableCell>
                   <TableCell>{vet.yearsExperience}</TableCell>
+                  <TableCell>{vet.isActive ? 'Active' : 'Inactive'}</TableCell>
+                  <TableCell>{vet.notes ?? '—'}</TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    <IconButton size="small" color="primary">
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={() => {
+                        setDialogOpen(true);
+                        setEditingVet(vet);
+                      }}
+                    >
                       <EditIcon fontSize="small" />
                     </IconButton>
                     <IconButton
@@ -122,7 +154,7 @@ export default function AdminVets() {
               ))}
               {!isPending && !vets.length && (
                 <TableRow>
-                  <TableCell colSpan={4}>
+                  <TableCell colSpan={6}>
                     <Typography variant="body2" color="text.secondary">
                       No vets yet.
                     </Typography>
