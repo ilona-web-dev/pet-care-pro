@@ -19,10 +19,13 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useClientsQuery } from '../hooks/useClientsQuery';
 import useDeleteClientMutation from '../hooks/useDeleteClientMutation';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
+import { type Client } from '../types/admin';
 
 export default function AdminClients() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<string | null>(null);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
+
   const { mutate: deleteClient, isPending: isDeleting } =
     useDeleteClientMutation();
 
@@ -39,17 +42,27 @@ export default function AdminClients() {
       <AdminHeader
         title="Client records"
         btnText="Add new client"
-        onAction={() => setIsDialogOpen(true)}
+        onAction={() => {
+          setEditingClient(null);
+          setIsDialogOpen(true);
+        }}
       />
-      <ClientFormDialog
-        open={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-      />
+
       {isPending && (
         <div className="flex items-center justify-center py-10">
           <CircularProgress size={32} />
         </div>
       )}
+
+      <ClientFormDialog
+        open={isDialogOpen}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setEditingClient(null);
+        }}
+        initialValues={editingClient}
+      />
+
       <DeleteConfirmDialog
         open={!!clientToDelete}
         title="Delete client"
@@ -142,7 +155,14 @@ export default function AdminClients() {
                     )}
                   </TableCell>
                   <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    <IconButton size="small" color="primary">
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={() => {
+                        setEditingClient(client);
+                        setIsDialogOpen(true);
+                      }}
+                    >
                       <EditIcon fontSize="small" />
                     </IconButton>
                     <IconButton

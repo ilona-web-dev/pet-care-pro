@@ -1,7 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
 import type { Client } from '../types/admin';
 
-// Raw row returned from Supabase (snake_case + nullable fields)
 export type ClientRow = {
   id: string;
   full_name: string;
@@ -12,7 +11,6 @@ export type ClientRow = {
   created_at: string;
 };
 
-// Payload passed from UI when creating a client
 export type CreateClientPayload = {
   fullName: string;
   email: string;
@@ -21,7 +19,11 @@ export type CreateClientPayload = {
   notes?: string;
 };
 
-// Maps DB row into our domain Client model (camelCase + defaults)
+export type UpdateClientPayload = {
+  id: string;
+  data: Partial<CreateClientPayload>;
+};
+
 export const mapClient = (row: ClientRow): Client => ({
   id: row.id,
   fullName: row.full_name,
@@ -32,38 +34,57 @@ export const mapClient = (row: ClientRow): Client => ({
   createdAt: row.created_at,
 });
 
-// Fetches all clients from Supabase
+const mapCreateClientPayload = (payload: CreateClientPayload) => ({
+  full_name: payload.fullName,
+  email: payload.email,
+  phone: payload.phone,
+  address: payload.address ?? null,
+  notes: payload.notes ?? null,
+});
+
+const mapUpdateClientPayload = (payload: Partial<CreateClientPayload>) => ({
+  full_name: payload.fullName ?? undefined,
+  email: payload.email ?? undefined,
+  phone: payload.phone ?? undefined,
+  address: payload.address ?? undefined,
+  notes: payload.notes ?? undefined,
+});
+
 export async function fetchClients(): Promise<Client[]> {
-  const { data: clients, error } = await supabase
+  const { data, error } = await supabase
     .from('clients')
     .select('*')
     .order('created_at');
 
   if (error) throw error;
-
-  const rows = (clients ?? []) as ClientRow[];
+  const rows = (data ?? []) as ClientRow[];
   return rows.map(mapClient);
 }
 
-// Creates a new client and returns mapped result
 export async function createClient(
   payload: CreateClientPayload,
 ): Promise<Client> {
-  const { data: client, error } = await supabase
+  const { data, error } = await supabase
     .from('clients')
-    .insert({
-      full_name: payload.fullName,
-      email: payload.email,
-      phone: payload.phone,
-      address: payload.address ?? null,
-      notes: payload.notes ?? null,
-    })
+    .insert(mapCreateClientPayload(payload))
     .select()
     .single<ClientRow>();
 
-  if (error) {
-    throw error;
-  }
+  if (error) throw error;
+  return mapClient(data);
+}
 
-  return mapClient(client);
+export async function updateClient({
+  id,
+  data,
+}: UpdateClientPayload): Promise<Client> {
+  const { data: row, error } = await supabase
+    .from('clients')
+    .update(mapUpdateClientPayload(data))
+    .eq('id', id)
+    .select()
+    .single<ClientRow>();
+
+  if (error) throw error;
+  return mapClient(row);
 }

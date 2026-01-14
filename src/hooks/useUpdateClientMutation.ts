@@ -1,40 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabaseClient';
-import toast from 'react-hot-toast';
-
-type UpdateClientPayload = {
-  id: string;
-  data: {
-    fullName?: string;
-    email?: string;
-    phone?: string;
-    address?: string;
-    notes?: string;
-  };
-};
+import { updateClient, type UpdateClientPayload } from '../services/clients';
+import type { Client } from '../types/admin';
 
 function useUpdateClientMutation() {
   const queryClient = useQueryClient();
-  return useMutation<void, Error, UpdateClientPayload>({
-    mutationFn: async ({ id, data }) => {
-      const { error } = await supabase
-        .from('clients')
-        .update({
-          full_name: data.fullName ?? null,
-          email: data.email ?? null,
-          phone: data.phone ?? null,
-          address: data.address ?? null,
-          notes: data.notes ?? null,
-        })
-        .eq('id', id);
-      if (error) throw error;
-    },
+  return useMutation<Client, Error, UpdateClientPayload>({
+    mutationFn: updateClient,
     onSuccess: () => {
-      toast.success('Client updated');
       queryClient.invalidateQueries({ queryKey: ['clients'] });
-    },
-    onError: (error) => {
-      toast.error(error.message ?? 'Failed to update client');
     },
   });
 }

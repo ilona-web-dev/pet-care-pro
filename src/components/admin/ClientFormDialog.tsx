@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Button,
   Dialog,
@@ -10,7 +11,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import ClientFormContent from './ClientFormContent';
 import useCreateClientMutation from '../../hooks/useCreateClientMutation';
+import useUpdateClientMutation from '../../hooks/useUpdateClientMutation';
 import toast from 'react-hot-toast';
+import type { Client } from '../../types/admin';
 
 const clientSchema = z.object({
   fullName: z.string().min(2, 'Enter full name'),
@@ -25,26 +28,70 @@ export type ClientFormValues = z.infer<typeof clientSchema>;
 type Props = {
   open: boolean;
   onClose: () => void;
+  initialValues?: Client | null;
 };
 
-export default function ClientFormDialog({ open, onClose }: Props) {
+const CLIENT_FORM_DEFAULTS: ClientFormValues = {
+  fullName: '',
+  email: '',
+  phone: '',
+  address: '',
+  notes: '',
+};
+
+export default function ClientFormDialog({
+  open,
+  onClose,
+  initialValues,
+}: Props) {
   const form = useForm<ClientFormValues>({
     resolver: zodResolver(clientSchema),
-    defaultValues: {
-      fullName: '',
-      email: '',
-      phone: '',
-      address: '',
-      notes: '',
-    },
+    defaultValues: CLIENT_FORM_DEFAULTS,
   });
 
-  const { mutate, isPending } = useCreateClientMutation();
+  useEffect(() => {
+    if (initialValues) {
+      form.reset({
+        fullName: initialValues.fullName,
+        email: initialValues.email,
+        phone: initialValues.phone,
+        address: initialValues.address ?? '',
+        notes: initialValues.notes ?? '',
+      });
+      return;
+    }
+    form.reset(CLIENT_FORM_DEFAULTS);
+  }, [initialValues, form]);
+
+  const isEditMode = Boolean(initialValues);
+
+  const { mutate: createClient, isPending: isCreating } =
+    useCreateClientMutation();
+  const { mutate: updateClient, isPending: isUpdating } =
+    useUpdateClientMutation();
+
+  const isSubmitting = isEditMode ? isUpdating : isCreating;
 
   const onSubmit: SubmitHandler<ClientFormValues> = (values) => {
-    mutate(values, {
+    if (isEditMode && initialValues) {
+      updateClient(
+        { id: initialValues.id, data: values },
+        {
+          onSuccess: () => {
+            toast.success('Client saved');
+            form.reset();
+            onClose();
+          },
+          onError: (error) =>
+            toast.error(error.message ?? 'Failed to save client'),
+        },
+      );
+      return;
+    }
+
+    createClient(values, {
       onSuccess: () => {
-        toast.success('Client added');
+        toast.success('Client saved');
         form.reset();
         onClose();
       },
@@ -54,7 +101,7 @@ export default function ClientFormDialog({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Add client</DialogTitle>
+      <DialogTitle>{isEditMode ? 'Edit client' : 'Add client'}</DialogTitle>
       <DialogContent>
         <form
           id="client-form"
@@ -65,11 +112,15 @@ export default function ClientFormDialog({ open, onClose }: Props) {
         </form>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={isPending}>
+        <Button onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button type="submit" form="client-form" disabled={isPending}>
-          {isPending ? 'Adding....' : 'Add'}
+        <Button type="submit" form="client-form" disabled={isSubmitting}>
+          {isSubmitting
+            ? 'Saving…'
+            : isEditMode
+            ? 'Save changes'
+            : 'Add client'}
         </Button>
       </DialogActions>
     </Dialog>
