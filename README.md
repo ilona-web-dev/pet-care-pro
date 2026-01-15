@@ -6,11 +6,22 @@ PetCare Pro is a personal pet project focused on building a small veterinary cli
 
 > Public-facing part of the application. The admin area is under active development.
 
+<p align="center">
+    <img src="./docs/pet-care-pro-main-screen.jpg" alt="Pet Care Pro - Main Screen" width="30%" />
+    <img src="./docs/pet-care-pro-services.jpg" alt="Services section" width="30%" />
+     <img src="./docs/pet-care-pro-vets.jpg" alt="Vets section" width="30%" />
+  <br />
+    <img src="./docs/pet-care-pro-reviews.jpg" alt="Reviews section" width="30%" />
+    <img src="./docs/pet-care-pro-form.jpg" alt="Contact form section" width="30%" />
+    <img src="./docs/pet-care-pro-admin.jpg" alt="Admin panel, currently in development" width="30%" />
+</p>
+
 It is designed as a CRUD-based system for managing clients, pets, clinic visits, and staff, with an emphasis on clean architecture, type safety, and real-world data relationships.
 
 The UI and overall interface design were created by me, with a focus on usability and clarity for both public pages and admin workflows, based on my previous experience building web applications.
 
-**The app is divided into two main parts:**
+##The app is divided into two main parts:##
+
 
 ### Public area
 
