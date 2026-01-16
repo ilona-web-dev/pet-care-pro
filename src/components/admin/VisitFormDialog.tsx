@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Button,
   Dialog,
@@ -13,7 +14,9 @@ import useCreateVisitMutation from '../../hooks/useCreateVisitMutation';
 import { usePetsQuery } from '../../hooks/usePetsQuery';
 import { useVetsQuery } from '../../hooks/useVetsQuery';
 import useOwnerNameMap from '../../hooks/useOwnerNameMap';
+import useUpdateVisitMutation from '../../hooks/useUpdateVisitMutation';
 import toast from 'react-hot-toast';
+import type { Visit } from '../../types/admin';
 
 const visitSchema = z.object({
   visitDate: z.string().min(1, 'Select date'),
@@ -38,25 +41,59 @@ export type VisitFormValues = z.infer<typeof visitSchema>;
 type Props = {
   open: boolean;
   onClose: () => void;
+  initialValues?: Visit | null;
 };
 
-export default function VisitFormDialog({ open, onClose }: Props) {
+const VISIT_FORM_DEFAULTS: VisitFormValues = {
+  visitDate: '',
+  petId: '',
+  vetId: '',
+  reason: 'vaccination',
+  status: 'planned',
+  diagnosis: '',
+  treatment: '',
+  invoiceAmount: '',
+  notes: '',
+};
+
+export default function VisitFormDialog({
+  open,
+  onClose,
+  initialValues,
+}: Props) {
   const form = useForm<VisitFormValues>({
     resolver: zodResolver(visitSchema),
-    defaultValues: {
-      visitDate: '',
-      petId: '',
-      vetId: '',
-      reason: 'vaccination',
-      status: 'planned',
-      diagnosis: '',
-      treatment: '',
-      invoiceAmount: '',
-      notes: '',
-    },
+    defaultValues: VISIT_FORM_DEFAULTS,
   });
 
-  const { mutate, isPending } = useCreateVisitMutation();
+  useEffect(() => {
+    if (initialValues) {
+      form.reset({
+        visitDate: initialValues.visitDate,
+        petId: initialValues.petId,
+        vetId: initialValues.vetId,
+        reason: initialValues.reason,
+        status: initialValues.status,
+        diagnosis: initialValues.diagnosis ?? '',
+        treatment: initialValues.treatment ?? '',
+        invoiceAmount: initialValues.invoiceAmount
+          ? String(initialValues.invoiceAmount)
+          : '',
+        notes: initialValues.notes ?? '',
+      });
+      return;
+    }
+    form.reset(VISIT_FORM_DEFAULTS);
+  }, [initialValues, form]);
+
+  const isEditMode = Boolean(initialValues);
+
+  const { mutate: createVisit, isPending: isCreating } =
+    useCreateVisitMutation();
+  const { mutate: updateVisit, isPending: isUpdating } =
+    useUpdateVisitMutation();
+
+  const isSubmitting = isEditMode ? isUpdating : isCreating;
 
   const onSubmit: SubmitHandler<VisitFormValues> = (values) => {
     const payload = {
@@ -65,13 +102,29 @@ export default function VisitFormDialog({ open, onClose }: Props) {
         ? Number(values.invoiceAmount)
         : undefined,
     };
-    mutate(payload, {
+    if (isEditMode && initialValues) {
+      updateVisit(
+        { id: initialValues.id, data: payload },
+        {
+          onSuccess: () => {
+            toast.success('Visit saved');
+            form.reset();
+            onClose();
+          },
+          onError: (error) =>
+            toast.error(error.message ?? 'Failed to save visit'),
+        },
+      );
+      return;
+    }
+
+    createVisit(payload, {
       onSuccess: () => {
-        toast.success('Visit added');
+        toast.success('Visit saved');
         form.reset();
         onClose();
       },
-      onError: (error) => toast.error(error.message ?? 'Failed to save'),
+      onError: (error) => toast.error(error.message ?? 'Failed to save visit'),
     });
   };
 
@@ -94,7 +147,7 @@ export default function VisitFormDialog({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Add visit</DialogTitle>
+      <DialogTitle>{isEditMode ? 'Edit visit' : 'Add visit'}</DialogTitle>
       <DialogContent>
         <form
           id="visit-form"
@@ -109,11 +162,15 @@ export default function VisitFormDialog({ open, onClose }: Props) {
         </form>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={isPending}>
+        <Button onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button type="submit" form="visit-form" disabled={isPending}>
-          {isPending ? 'Adding...' : 'Add'}
+        <Button type="submit" form="visit-form" disabled={isSubmitting}>
+          {isSubmitting
+            ? 'Saving…'
+            : isEditMode
+            ? 'Save changes'
+            : 'Add visit'}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import { type Visit, type VisitStatus, type VisitReason } from '../types/admin';
+import { type Visit, type VisitReason, type VisitStatus } from '../types/admin';
 
 export type VisitRow = {
   id: string;
@@ -27,6 +27,11 @@ export type CreateVisitPayload = {
   notes?: string;
 };
 
+export type UpdateVisitPayload = {
+  id: string;
+  data: Partial<CreateVisitPayload>;
+};
+
 export const mapVisit = (row: VisitRow): Visit => ({
   id: row.id,
   petId: row.pet_id,
@@ -40,35 +45,65 @@ export const mapVisit = (row: VisitRow): Visit => ({
   notes: row.notes ?? undefined,
 });
 
-export async function fetchVisits() {
-  const { data: visits, error } = await supabase
+const mapCreateVisitPayload = (payload: CreateVisitPayload) => ({
+  pet_id: payload.petId,
+  vet_id: payload.vetId,
+  visit_date: payload.visitDate,
+  reason: payload.reason,
+  status: payload.status,
+  diagnosis: payload.diagnosis ?? null,
+  treatment: payload.treatment ?? null,
+  invoice_amount: payload.invoiceAmount ?? null,
+  notes: payload.notes ?? null,
+});
+
+const mapUpdateVisitPayload = (payload: Partial<CreateVisitPayload>) => ({
+  pet_id: payload.petId ?? undefined,
+  vet_id: payload.vetId ?? undefined,
+  visit_date: payload.visitDate ?? undefined,
+  reason: payload.reason ?? undefined,
+  status: payload.status ?? undefined,
+  diagnosis: payload.diagnosis ?? undefined,
+  treatment: payload.treatment ?? undefined,
+  invoice_amount: payload.invoiceAmount ?? undefined,
+  notes: payload.notes ?? undefined,
+});
+
+export async function fetchVisits(): Promise<Visit[]> {
+  const { data, error } = await supabase
     .from('visits')
     .select('*')
     .order('created_at');
 
   if (error) throw error;
-
-  const rows = (visits ?? []) as VisitRow[];
+  const rows = (data ?? []) as VisitRow[];
   return rows.map(mapVisit);
 }
 
-export async function createVisit(payload: CreateVisitPayload): Promise<Visit> {
-  const { data: visit, error } = await supabase
+export async function createVisit(
+  payload: CreateVisitPayload,
+): Promise<Visit> {
+  const { data, error } = await supabase
     .from('visits')
-    .insert({
-      pet_id: payload.petId,
-      vet_id: payload.vetId,
-      visit_date: payload.visitDate,
-      reason: payload.reason,
-      status: payload.status,
-      diagnosis: payload.diagnosis ?? null,
-      treatment: payload.treatment ?? null,
-      invoice_amount: payload.invoiceAmount ?? null,
-      notes: payload.notes ?? null,
-    })
+    .insert(mapCreateVisitPayload(payload))
     .select()
     .single<VisitRow>();
 
   if (error) throw error;
-  return mapVisit(visit);
+  return mapVisit(data);
+}
+
+export async function updateVisit({
+  id,
+  data,
+}: UpdateVisitPayload): Promise<Visit> {
+  const { data: row, error } = await supabase
+    .from('visits')
+    .update(mapUpdateVisitPayload(data))
+    .eq('id', id)
+    .select()
+    .single<VisitRow>();
+
+  if (error) throw error;
+  return mapVisit(row);
 }

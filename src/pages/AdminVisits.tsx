@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import AdminHeader from '../components/admin/AdminHeader';
 import useVisitsQuery from '../hooks/useVisitsQuery';
-import VisitFormDialog from '../components/admin/VisitFormDialog';
 import useVetNameMap from '../hooks/useVetNameMap';
 import usePetNameMap from '../hooks/usePetNameMap';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
+import VisitFormDialog from '../components/admin/VisitFormDialog';
 
 import {
   Alert,
@@ -23,10 +23,12 @@ import {
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import useDeleteVisitMutation from '../hooks/useDeleteVisitMutation';
+import { type Visit } from '../types/admin';
 
 export default function AdminVisits() {
-  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [visitToDelete, setVisitToDelete] = useState<string | null>(null);
+  const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
 
   const {
     data: visits = [],
@@ -47,11 +49,18 @@ export default function AdminVisits() {
       <AdminHeader
         title="Visit records"
         btnText="Add new visit"
-        onAction={() => setDialogOpen(true)}
+        onAction={() => {
+          setEditingVisit(null);
+          setIsDialogOpen(true);
+        }}
       />
       <VisitFormDialog
         open={isDialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => {
+          setIsDialogOpen(false);
+          setEditingVisit(null);
+        }}
+        initialValues={editingVisit}
       />
 
       <DeleteConfirmDialog
@@ -173,11 +182,18 @@ export default function AdminVisits() {
                     <IconButton
                       size="small"
                       color="primary"
-                      onClick={() => setVisitToDelete(visit.id)}
+                      onClick={() => {
+                        setEditingVisit(visit);
+                        setIsDialogOpen(true);
+                      }}
                     >
                       <EditIcon fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" color="error">
+                    <IconButton
+                      size="small"
+                      color="error"
+                      onClick={() => setVisitToDelete(visit.id)}
+                    >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
