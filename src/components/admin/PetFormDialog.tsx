@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import {
   Button,
   Dialog,
@@ -12,6 +13,8 @@ import toast from 'react-hot-toast';
 import PetFormContent from './PetFormContent';
 import useCreatePetMutation from '../../hooks/useCreatePetMutation';
 import { useClientsQuery } from '../../hooks/useClientsQuery';
+import useUpdatePetMutation from '../../hooks/useUpdatePetMutation';
+import type { Pet } from '../../types/admin';
 
 const petSchema = z.object({
   ownerId: z.string().min(1, 'Select owner'),
@@ -30,9 +33,26 @@ export type PetFormValues = z.infer<typeof petSchema>;
 type Props = {
   open: boolean;
   onClose: () => void;
+  initialValues?: Pet | null;
 };
 
-export default function PetFormDialog({ open, onClose }: Props) {
+const PET_FORM_DEFAULTS: PetFormValues = {
+  ownerId: '',
+  name: '',
+  species: 'dog',
+  breed: '',
+  sex: undefined,
+  birthDate: '',
+  microchip: '',
+  weightKg: '',
+  notes: '',
+};
+
+export default function PetFormDialog({
+  open,
+  onClose,
+  initialValues,
+}: Props) {
   const { data: clients = [] } = useClientsQuery();
   const ownerOptions = clients
     .slice()
@@ -44,20 +64,37 @@ export default function PetFormDialog({ open, onClose }: Props) {
 
   const form = useForm<PetFormValues>({
     resolver: zodResolver(petSchema),
-    defaultValues: {
-      ownerId: '',
-      name: '',
-      species: 'dog',
-      breed: '',
-      sex: undefined,
-      birthDate: '',
-      microchip: '',
-      weightKg: '',
-      notes: '',
-    },
+    defaultValues: PET_FORM_DEFAULTS,
   });
 
-  const { mutate, isPending } = useCreatePetMutation();
+  useEffect(() => {
+    if (initialValues) {
+      form.reset({
+        ownerId: initialValues.ownerId,
+        name: initialValues.name,
+        species: initialValues.species,
+        breed: initialValues.breed ?? '',
+        sex: initialValues.sex ?? undefined,
+        birthDate: initialValues.birthDate ?? '',
+        microchip: initialValues.microchip ?? '',
+        weightKg: initialValues.weightKg
+          ? String(initialValues.weightKg)
+          : '',
+        notes: initialValues.notes ?? '',
+      });
+      return;
+    }
+    form.reset(PET_FORM_DEFAULTS);
+  }, [initialValues, form]);
+
+  const isEditMode = Boolean(initialValues);
+
+  const { mutate: createPet, isPending: isCreating } =
+    useCreatePetMutation();
+  const { mutate: updatePet, isPending: isUpdating } =
+    useUpdatePetMutation();
+
+  const isSubmitting = isEditMode ? isUpdating : isCreating;
 
   const onSubmit: SubmitHandler<PetFormValues> = (values) => {
     const payload = {
@@ -65,9 +102,25 @@ export default function PetFormDialog({ open, onClose }: Props) {
       weightKg: values.weightKg ? Number(values.weightKg) : undefined,
     };
 
-    mutate(payload, {
+    if (isEditMode && initialValues) {
+      updatePet(
+        { id: initialValues.id, data: payload },
+        {
+          onSuccess: () => {
+            toast.success('Pet saved');
+            form.reset();
+            onClose();
+          },
+          onError: (error) =>
+            toast.error(error.message ?? 'Failed to save pet'),
+        },
+      );
+      return;
+    }
+
+    createPet(payload, {
       onSuccess: () => {
-        toast.success('Pet added');
+        toast.success('Pet saved');
         form.reset();
         onClose();
       },
@@ -77,7 +130,7 @@ export default function PetFormDialog({ open, onClose }: Props) {
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>Add pet</DialogTitle>
+      <DialogTitle>{isEditMode ? 'Edit pet' : 'Add pet'}</DialogTitle>
       <DialogContent>
         <form
           id="pet-form"
@@ -88,11 +141,11 @@ export default function PetFormDialog({ open, onClose }: Props) {
         </form>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={isPending}>
+        <Button onClick={onClose} disabled={isSubmitting}>
           Cancel
         </Button>
-        <Button type="submit" form="pet-form" disabled={isPending}>
-          {isPending ? 'Adding...' : 'Add'}
+        <Button type="submit" form="pet-form" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving…' : isEditMode ? 'Save changes' : 'Add pet'}
         </Button>
       </DialogActions>
     </Dialog>

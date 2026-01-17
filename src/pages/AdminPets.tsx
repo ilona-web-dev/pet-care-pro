@@ -21,10 +21,13 @@ import PetFormDialog from '../components/admin/PetFormDialog';
 import useOwnerNameMap from '../hooks/useOwnerNameMap';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 import useDeletePetMutation from '../hooks/useDeletePetMutation';
+import { type Pet } from '../types/admin';
 
 export default function AdminPets() {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [petToDelete, setPetToDelele] = useState<string | null>(null);
+  const [editingPet, setEditingPet] = useState<Pet | null>(null);
+
   const { mutate: deletePet, isPending: isDeleting } = useDeletePetMutation();
 
   const {
@@ -43,9 +46,19 @@ export default function AdminPets() {
       <AdminHeader
         title="Pet records"
         btnText="Add new pet"
-        onAction={() => setDialogOpen(true)}
+        onAction={() => {
+          setEditingPet(null);
+          setDialogOpen(true);
+        }}
       />
-      <PetFormDialog open={isDialogOpen} onClose={() => setDialogOpen(false)} />
+      <PetFormDialog
+        open={isDialogOpen}
+        onClose={() => {
+          setDialogOpen(false);
+          setEditingPet(null);
+        }}
+        initialValues={editingPet}
+      />
 
       <DeleteConfirmDialog
         open={!!petToDelete}
@@ -151,9 +164,16 @@ export default function AdminPets() {
                       )}
                     </TableCell>
                     <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                      <IconButton size="small" color="primary">
-                        <EditIcon fontSize="small" />
-                      </IconButton>
+                    <IconButton
+                      size="small"
+                      color="primary"
+                      onClick={() => {
+                        setEditingPet(pet);
+                        setDialogOpen(true);
+                      }}
+                    >
+                      <EditIcon fontSize="small" />
+                    </IconButton>
                       <IconButton
                         size="small"
                         color="error"
