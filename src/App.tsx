@@ -6,6 +6,7 @@ import PublicLayout from './layouts/PublicLayout';
 import AdminLayout from './layouts/AdminLayout';
 
 import Home from './pages/Home';
+import Login from './pages/Login';
 import AdminClients from './pages/AdminClients';
 import AdminPets from './pages/AdminPets';
 import AdminVisits from './pages/AdminVisits';
@@ -17,7 +18,10 @@ const router = createBrowserRouter([
   {
     path: '/',
     element: <PublicLayout />,
-    children: [{ index: true, element: <Home /> }],
+    children: [
+      { index: true, element: <Home /> },
+      { path: 'login', element: <Login /> },
+    ],
   },
   {
     path: '/admin',
