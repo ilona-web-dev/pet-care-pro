@@ -25,12 +25,6 @@ export default function TeamMember({
         <p className="text-sm text-teal-600">{role}</p>
         <p className="mt-3 text-sm text-slate-600">{bio}</p>
       </div>
-      <button
-        type="button"
-        className="mt-4 inline-flex items-center justify-center rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-teal-300 hover:text-teal-700 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2"
-      >
-        Book with {name.split(' ')[1]}
-      </button>
     </article>
   );
 }

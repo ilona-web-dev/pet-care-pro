@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { MdLocationOn, MdMailOutline, MdPhoneIphone } from 'react-icons/md';
 import Logo from '../shared/Logo';
 
@@ -103,7 +104,12 @@ export default function Footer() {
       <div className="border-t border-white/5">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-4 py-6 text-xs text-slate-500 sm:flex-row">
           <p>© {new Date().getFullYear()} PetCare Pro — Dublin</p>
-          <p>Registered Veterinary Practice No. 28734 · Fear-Free Certified</p>
+          <div className="flex flex-col items-center gap-1 text-xs text-slate-500 sm:flex-row sm:gap-3">
+            <p>Registered Veterinary Practice No. 28734 · Fear-Free Certified</p>
+            <Link to="/login" className="text-teal-200 hover:text-white">
+              Admin login
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
