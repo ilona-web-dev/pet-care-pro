@@ -15,7 +15,11 @@ const officeHours = [
   { days: 'Sunday', hours: 'Emergency line only' },
 ];
 
-export default function Footer() {
+type FooterProps = {
+  hideNav?: boolean;
+};
+
+export default function Footer({ hideNav = false }: FooterProps) {
   return (
     <footer className="bg-slate-900 text-slate-300">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3">
@@ -35,22 +39,28 @@ export default function Footer() {
         </div>
 
         <div>
-          <p className="text-sm font-semibold tracking-wide text-slate-400 uppercase">
-            Navigation
-          </p>
-          <ul className="mt-4 space-y-2 text-sm">
-            {navigationLinks.map((item) => (
-              <li key={item.href}>
-                <a
-                  className="text-slate-300 transition hover:text-white"
-                  href={item.href}
-                >
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-8 text-sm font-semibold tracking-wide text-slate-400 uppercase">
+          {!hideNav && (
+            <>
+              <p className="text-sm font-semibold tracking-wide text-slate-400 uppercase">
+                Navigation
+              </p>
+              <ul className="mt-4 space-y-2 text-sm">
+                {navigationLinks.map((item) => (
+                  <li key={item.href}>
+                    <a
+                      className="text-slate-300 transition hover:text-white"
+                      href={item.href}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
+          <p
+            className={`${hideNav ? 'mt-0' : 'mt-8'} text-sm font-semibold tracking-wide text-slate-400 uppercase`}
+          >
             Hours
           </p>
           <ul className="mt-4 space-y-2 text-sm text-slate-300">

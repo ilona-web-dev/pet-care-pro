@@ -12,7 +12,7 @@ const menuItems: MenuItemsProps[] = [
   { id: 1, title: 'Services', link: '#services' },
   { id: 2, title: 'Team', link: '#team' },
   { id: 3, title: 'Reviews', link: '#reviews' },
-  { id: 4, title: 'Location', link: '#location' },
+  { id: 4, title: 'Location', link: '#contact' },
 ];
 
 export default function MainNavigation() {
