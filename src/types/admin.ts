@@ -61,3 +61,18 @@ export type ClientResponse = {
   data: Client[];
   count: number;
 };
+
+export type PetResponse = {
+  data: Pet[];
+  count: number;
+};
+
+export type VisitResponse = {
+  data: Visit[];
+  count: number;
+};
+
+export type VetResponse = {
+  data: Vet[];
+  count: number;
+};

@@ -22,21 +22,26 @@ import useOwnerNameMap from '../hooks/useOwnerNameMap';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 import useDeletePetMutation from '../hooks/useDeletePetMutation';
 import { type Pet } from '../types/admin';
+import Pagination from '../components/shared/Pagination';
 
 export default function AdminPets() {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [petToDelete, setPetToDelele] = useState<string | null>(null);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
 
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
+
   const { mutate: deletePet, isPending: isDeleting } = useDeletePetMutation();
 
-  const {
-    data: pets = [],
-    isPending,
-    isError,
-    error,
-    refetch,
-  } = usePetsQuery();
+  const { data, isPending, isError, error, refetch } = usePetsQuery({
+    page,
+    rowsPerPage,
+  });
+
+  const pets = data?.data ?? [];
+  const total = data?.count ?? 0;
+  const totalPages = Math.ceil(total / rowsPerPage);
 
   // Returns a memoized map of client ID -> full name for quick lookups
   const ownerNameById = useOwnerNameMap();
@@ -164,16 +169,16 @@ export default function AdminPets() {
                       )}
                     </TableCell>
                     <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      onClick={() => {
-                        setEditingPet(pet);
-                        setDialogOpen(true);
-                      }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
+                      <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={() => {
+                          setEditingPet(pet);
+                          setDialogOpen(true);
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
                       <IconButton
                         size="small"
                         color="error"
@@ -196,6 +201,16 @@ export default function AdminPets() {
               </TableBody>
             </Table>
           </TableContainer>
+
+          {totalPages > 1 && (
+            <div className="mt-4 flex justify-between">
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPageChange={(newPage) => setPage(newPage)}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

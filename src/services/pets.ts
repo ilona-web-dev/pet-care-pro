@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import type { Pet, PetSex, PetSpecies } from '../types/admin';
+import type { Pet, PetResponse, PetSex, PetSpecies } from '../types/admin';
 
 export type PetRow = {
   id: string;
@@ -70,15 +70,22 @@ const mapUpdatePetPayload = (payload: Partial<CreatePetPayload>) => ({
   notes: payload.notes ?? undefined,
 });
 
-export async function fetchPets(): Promise<Pet[]> {
-  const { data, error } = await supabase
+export async function fetchPets(
+  page: number,
+  rowsPerPage: number,
+): Promise<PetResponse> {
+  const from = page * rowsPerPage;
+  const to = from + rowsPerPage - 1;
+
+  const { data, error, count } = await supabase
     .from('pets')
-    .select('*')
-    .order('created_at');
+    .select('*', { count: 'exact' })
+    .order('created_at')
+    .range(from, to);
 
   if (error) throw error;
   const rows = (data ?? []) as PetRow[];
-  return rows.map(mapPet);
+  return { data: rows.map(mapPet), count: count ?? 0 };
 }
 
 export async function createPet(payload: CreatePetPayload): Promise<Pet> {
@@ -92,10 +99,7 @@ export async function createPet(payload: CreatePetPayload): Promise<Pet> {
   return mapPet(data);
 }
 
-export async function updatePet({
-  id,
-  data,
-}: UpdatePetPayload): Promise<Pet> {
+export async function updatePet({ id, data }: UpdatePetPayload): Promise<Pet> {
   const { data: row, error } = await supabase
     .from('pets')
     .update(mapUpdatePetPayload(data))
