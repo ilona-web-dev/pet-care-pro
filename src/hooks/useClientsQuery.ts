@@ -1,10 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchClients } from '../services/clients';
 
-export function useClientsQuery() {
+type UseClientsQueryArgs = {
+  page: number;
+  rowsPerPage: number;
+};
+
+export function useClientsQuery({ page, rowsPerPage }: UseClientsQueryArgs) {
   return useQuery({
-    queryKey: ['clients'],
-    queryFn: fetchClients,
+    queryKey: ['clients', page, rowsPerPage],
+    queryFn: () => fetchClients(page, rowsPerPage),
     retry: 1,
   });
 }

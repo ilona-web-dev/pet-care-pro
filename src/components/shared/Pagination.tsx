@@ -21,7 +21,7 @@ export default function Pagination({
           type="button"
           onClick={() => onPageChange(page - 1)}
           disabled={!canGoBack}
-          className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-teal-300 hover:text-teal-700 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-400"
+          className="cursor-pointer rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-teal-300 hover:text-teal-700 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-400"
         >
           Prev
         </button>
@@ -29,7 +29,7 @@ export default function Pagination({
           type="button"
           onClick={() => onPageChange(page + 1)}
           disabled={!canGoNext}
-          className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-teal-300 hover:text-teal-700 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-400"
+          className="cursor-pointer rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-teal-300 hover:text-teal-700 disabled:cursor-not-allowed disabled:border-slate-100 disabled:text-slate-400"
         >
           Next
         </button>
@@ -47,6 +47,7 @@ export default function Pagination({
                   ? 'bg-teal-600 text-white'
                   : 'border border-slate-200 text-slate-700 hover:border-teal-300 hover:text-teal-700'
               }`}
+              style={{ cursor: isActive ? 'default' : 'pointer' }}
             >
               {index + 1}
             </button>

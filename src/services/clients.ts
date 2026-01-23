@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import type { Client } from '../types/admin';
+import type { Client, ClientResponse } from '../types/admin';
 
 export type ClientRow = {
   id: string;
@@ -50,7 +50,25 @@ const mapUpdateClientPayload = (payload: Partial<CreateClientPayload>) => ({
   notes: payload.notes ?? undefined,
 });
 
-export async function fetchClients(): Promise<Client[]> {
+export async function fetchClients(
+  page: number,
+  rowsPerPage: number,
+): Promise<ClientResponse> {
+  const from = page * rowsPerPage;
+  const to = from + rowsPerPage - 1;
+
+  const { data, error, count } = await supabase
+    .from('clients')
+    .select('*', { count: 'exact' })
+    .order('created_at')
+    .range(from, to);
+
+  if (error) throw error;
+  const rows = (data ?? []) as ClientRow[];
+  return { data: rows.map(mapClient), count: count ?? 0 };
+}
+
+export async function fetchAllClients(): Promise<Client[]> {
   const { data, error } = await supabase
     .from('clients')
     .select('*')

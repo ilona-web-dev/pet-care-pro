@@ -56,3 +56,8 @@ export type Vet = {
   isActive: boolean;
   notes?: string;
 };
+
+export type ClientResponse = {
+  data: Client[];
+  count: number;
+};
