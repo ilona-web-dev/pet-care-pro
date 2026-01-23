@@ -193,15 +193,16 @@ export default function AdminClients() {
               </TableBody>
             </Table>
           </TableContainer>
-          <div className="mt-4 flex justify-between">
-            {totalPages > 1 && (
+
+          {totalPages > 1 && (
+            <div className="mt-4 flex justify-between">
               <Pagination
                 page={page}
                 totalPages={totalPages}
                 onPageChange={(newPage) => setPage(newPage)}
               />
-            )}
-          </div>
+            </div>
+          )}
         </>
       )}
     </div>
