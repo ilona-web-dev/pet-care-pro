@@ -12,8 +12,8 @@ import { useForm, type SubmitHandler } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import PetFormContent from './PetFormContent';
 import useCreatePetMutation from '../../hooks/useCreatePetMutation';
-import { useClientsQuery } from '../../hooks/useClientsQuery';
 import useUpdatePetMutation from '../../hooks/useUpdatePetMutation';
+import { useAllClientsQuery } from '../../hooks/useAllClientsQuery';
 import type { Pet } from '../../types/admin';
 
 const petSchema = z.object({
@@ -53,7 +53,7 @@ export default function PetFormDialog({
   onClose,
   initialValues,
 }: Props) {
-  const { data: clients = [] } = useClientsQuery();
+  const { data: clients = [] } = useAllClientsQuery();
   const ownerOptions = clients
     .slice()
     .sort((a, b) => a.fullName.localeCompare(b.fullName))

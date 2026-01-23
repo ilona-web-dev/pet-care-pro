@@ -1,8 +1,9 @@
 import { useMemo } from 'react';
-import { useClientsQuery } from './useClientsQuery';
+import { useAllClientsQuery } from './useAllClientsQuery';
 
 export default function useOwnerNameMap() {
-  const { data: clients = [] } = useClientsQuery();
+  const { data: clients = [] } = useAllClientsQuery();
+
   return useMemo(
     () =>
       clients.reduce<Record<string, string>>((acc, client) => {
