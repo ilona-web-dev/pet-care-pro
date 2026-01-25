@@ -1,6 +1,7 @@
 import './App.css';
 import { createBrowserRouter } from 'react-router-dom';
 import { Navigate } from 'react-router-dom';
+import ProtectedRoute from './components/shared/ProtectedRoute';
 
 import PublicLayout from './layouts/PublicLayout';
 import AdminLayout from './layouts/AdminLayout';
@@ -25,13 +26,18 @@ const router = createBrowserRouter([
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: <ProtectedRoute />,
     children: [
-      { index: true, element: <Navigate to="clients" replace /> },
-      { path: 'clients', element: <AdminClients /> },
-      { path: 'pets', element: <AdminPets /> },
-      { path: 'visits', element: <AdminVisits /> },
-      { path: 'vets', element: <AdminVets /> },
+      {
+        element: <AdminLayout />,
+        children: [
+          { index: true, element: <Navigate to="clients" replace /> },
+          { path: 'clients', element: <AdminClients /> },
+          { path: 'pets', element: <AdminPets /> },
+          { path: 'visits', element: <AdminVisits /> },
+          { path: 'vets', element: <AdminVets /> },
+        ],
+      },
     ],
   },
 ]);
