@@ -21,21 +21,28 @@ import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 import VetFormDialog from '../components/admin/VetFormDialog';
 import useDeleteVetMutation from '../hooks/useDeleteVetMutation';
 import { type Vet } from '../types/admin';
+import Pagination from '../components/shared/Pagination';
 
 export default function AdminVets() {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [vetToDelete, setVetToDelete] = useState<string | null>(null);
   const [editingVet, setEditingVet] = useState<Vet | null>(null);
+  const [page, setPage] = useState(0);
+  const rowsPerPage = 10;
 
   const { mutate: deleteVet, isPending: isDeleting } = useDeleteVetMutation();
 
   const {
-    data: vets = [],
+    data,
     isPending,
     isError,
     error,
     refetch,
-  } = useVetsQuery();
+  } = useVetsQuery({ page, rowsPerPage });
+
+  const vets = data?.data ?? [];
+  const total = data?.count ?? 0;
+  const totalPages = Math.ceil(total / rowsPerPage);
 
   return (
     <div className="space-y-3">
@@ -95,75 +102,86 @@ export default function AdminVets() {
       )}
 
       {!isPending && !isError && (
-        <TableContainer
-          component={Paper}
-          elevation={0}
-          sx={{
-            borderRadius: 3,
-            width: '100%',
-          }}
-        >
-          <Table>
-            <TableHead>
-              <TableRow
-                sx={{
-                  '& .MuiTableCell-root': {
-                    fontWeight: 600,
-                    color: 'text.primary',
-                  },
-                }}
-              >
-                <TableCell>Vet name</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Years of experience</TableCell>
-                <TableCell>Is active</TableCell>
-                <TableCell>Notes</TableCell>
-                <TableCell align="right">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {vets.map((vet) => (
-                <TableRow key={vet.id}>
-                  <TableCell>
-                    <p className="font-semibold">{vet.fullName}</p>
-                  </TableCell>
-                  <TableCell>{vet.role}</TableCell>
-                  <TableCell>{vet.yearsExperience}</TableCell>
-                  <TableCell>{vet.isActive ? 'Active' : 'Inactive'}</TableCell>
-                  <TableCell>{vet.notes ?? '—'}</TableCell>
-                  <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
-                    <IconButton
-                      size="small"
-                      color="primary"
-                      onClick={() => {
-                        setDialogOpen(true);
-                        setEditingVet(vet);
-                      }}
-                    >
-                      <EditIcon fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      color="error"
-                      onClick={() => setVetToDelete(vet.id)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  </TableCell>
+        <>
+          <TableContainer
+            component={Paper}
+            elevation={0}
+            sx={{
+              borderRadius: 3,
+              width: '100%',
+            }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow
+                  sx={{
+                    '& .MuiTableCell-root': {
+                      fontWeight: 600,
+                      color: 'text.primary',
+                    },
+                  }}
+                >
+                  <TableCell>Vet name</TableCell>
+                  <TableCell>Role</TableCell>
+                  <TableCell>Years of experience</TableCell>
+                  <TableCell>Is active</TableCell>
+                  <TableCell>Notes</TableCell>
+                  <TableCell align="right">Actions</TableCell>
                 </TableRow>
-              ))}
-              {!isPending && !vets.length && (
-                <TableRow>
-                  <TableCell colSpan={6}>
-                    <Typography variant="body2" color="text.secondary">
-                      No vets yet.
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+              </TableHead>
+              <TableBody>
+                {vets.map((vet) => (
+                  <TableRow key={vet.id}>
+                    <TableCell>
+                      <p className="font-semibold">{vet.fullName}</p>
+                    </TableCell>
+                    <TableCell>{vet.role}</TableCell>
+                    <TableCell>{vet.yearsExperience}</TableCell>
+                    <TableCell>{vet.isActive ? 'Active' : 'Inactive'}</TableCell>
+                    <TableCell>{vet.notes ?? '—'}</TableCell>
+                    <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
+                      <IconButton
+                        size="small"
+                        color="primary"
+                        onClick={() => {
+                          setDialogOpen(true);
+                          setEditingVet(vet);
+                        }}
+                      >
+                        <EditIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        onClick={() => setVetToDelete(vet.id)}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {!vets.length && (
+                  <TableRow>
+                    <TableCell colSpan={6}>
+                      <Typography variant="body2" color="text.secondary">
+                        No vets yet.
+                      </Typography>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {totalPages > 1 && (
+            <div className="mt-4 flex justify-between">
+              <Pagination
+                page={page}
+                totalPages={totalPages}
+                onPageChange={(newPage) => setPage(newPage)}
+              />
+            </div>
+          )}
+        </>
       )}
     </div>
   );
