@@ -1,10 +1,18 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchVisits } from '../services/visits';
 
-export default function useVisitsQuery() {
+type UseVisitsQueryArgs = {
+  page: number;
+  rowsPerPage: number;
+};
+
+export default function useVisitsQuery({
+  page,
+  rowsPerPage,
+}: UseVisitsQueryArgs) {
   return useQuery({
-    queryKey: ['visits'],
-    queryFn: fetchVisits,
+    queryKey: ['visits', page, rowsPerPage],
+    queryFn: () => fetchVisits(page, rowsPerPage),
     retry: 1,
   });
 }

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import { type Vet } from '../types/admin';
+import { type Vet, type VetResponse } from '../types/admin';
 
 export type VetRow = {
   id: string;
@@ -49,15 +49,31 @@ const mapUpdateVetPayload = (payload: Partial<CreateVetPayload>) => ({
   notes: payload.notes ?? undefined,
 });
 
-export async function fetchVets(): Promise<Vet[]> {
+export async function fetchVets(
+  page: number,
+  rowsPerPage: number,
+): Promise<VetResponse> {
+  const from = page * rowsPerPage;
+  const to = from + rowsPerPage - 1;
+
+  const { data, error, count } = await supabase
+    .from('vets')
+    .select('*', { count: 'exact' })
+    .order('created_at')
+    .range(from, to);
+
+  if (error) throw error;
+  const rows = (data ?? []) as VetRow[];
+  return { data: rows.map(mapVet), count: count ?? 0 };
+}
+
+export async function fetchAllVets(): Promise<Vet[]> {
   const { data, error } = await supabase
     .from('vets')
     .select('*')
     .order('created_at');
-
   if (error) throw error;
-  const rows = (data ?? []) as VetRow[];
-  return rows.map(mapVet);
+  return (data ?? []).map(mapVet);
 }
 
 export async function createVet(payload: CreateVetPayload): Promise<Vet> {

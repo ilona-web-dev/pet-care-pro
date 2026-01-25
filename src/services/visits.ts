@@ -1,5 +1,10 @@
 import { supabase } from '../lib/supabaseClient';
-import { type Visit, type VisitReason, type VisitStatus } from '../types/admin';
+import {
+  type Visit,
+  type VisitReason,
+  type VisitResponse,
+  type VisitStatus,
+} from '../types/admin';
 
 export type VisitRow = {
   id: string;
@@ -69,20 +74,35 @@ const mapUpdateVisitPayload = (payload: Partial<CreateVisitPayload>) => ({
   notes: payload.notes ?? undefined,
 });
 
-export async function fetchVisits(): Promise<Visit[]> {
-  const { data, error } = await supabase
+export async function fetchVisits(
+  page: number,
+  rowsPerPage: number,
+): Promise<VisitResponse> {
+  const from = page * rowsPerPage;
+  const to = from + rowsPerPage - 1;
+
+  const { data, error, count } = await supabase
     .from('visits')
-    .select('*')
-    .order('created_at');
+    .select('*', { count: 'exact' })
+    .order('created_at')
+    .range(from, to);
 
   if (error) throw error;
   const rows = (data ?? []) as VisitRow[];
-  return rows.map(mapVisit);
+  return { data: rows.map(mapVisit), count: count ?? 0 };
 }
 
-export async function createVisit(
-  payload: CreateVisitPayload,
-): Promise<Visit> {
+export async function fetchAllVisits(): Promise<Visit[]> {
+  const { data, error } = await supabase
+    .from('visits')
+    .select('*', { count: 'exact' })
+    .order('created_at');
+
+  if (error) throw error;
+  return (data ?? []).map(mapVisit);
+}
+
+export async function createVisit(payload: CreateVisitPayload): Promise<Visit> {
   const { data, error } = await supabase
     .from('visits')
     .insert(mapCreateVisitPayload(payload))

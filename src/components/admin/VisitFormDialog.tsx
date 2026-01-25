@@ -11,8 +11,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import VisitFormContent from './VisitFormContent';
 import useCreateVisitMutation from '../../hooks/useCreateVisitMutation';
-import { usePetsQuery } from '../../hooks/usePetsQuery';
-import { useVetsQuery } from '../../hooks/useVetsQuery';
+import { useAllPetsQuery } from '../../hooks/useAllPetsQuery';
+import { useAllVetsQuery } from '../../hooks/useAllVetsQuery';
 import useOwnerNameMap from '../../hooks/useOwnerNameMap';
 import useUpdateVisitMutation from '../../hooks/useUpdateVisitMutation';
 import toast from 'react-hot-toast';
@@ -128,8 +128,8 @@ export default function VisitFormDialog({
     });
   };
 
-  const { data: pets = [] } = usePetsQuery();
-  const { data: vets = [] } = useVetsQuery();
+  const { data: pets = [] } = useAllPetsQuery();
+  const { data: vets = [] } = useAllVetsQuery();
   const ownerNameById = useOwnerNameMap();
 
   const petOptions = pets
@@ -166,11 +166,7 @@ export default function VisitFormDialog({
           Cancel
         </Button>
         <Button type="submit" form="visit-form" disabled={isSubmitting}>
-          {isSubmitting
-            ? 'Saving…'
-            : isEditMode
-            ? 'Save changes'
-            : 'Add visit'}
+          {isSubmitting ? 'Saving…' : isEditMode ? 'Save changes' : 'Add visit'}
         </Button>
       </DialogActions>
     </Dialog>

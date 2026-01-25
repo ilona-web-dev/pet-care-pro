@@ -99,6 +99,15 @@ export async function createPet(payload: CreatePetPayload): Promise<Pet> {
   return mapPet(data);
 }
 
+export async function fetchAllPets(): Promise<Pet[]> {
+  const { data, error } = await supabase
+    .from('pets')
+    .select('*')
+    .order('created_at');
+  if (error) throw error;
+  return (data ?? []).map(mapPet);
+}
+
 export async function updatePet({ id, data }: UpdatePetPayload): Promise<Pet> {
   const { data: row, error } = await supabase
     .from('pets')

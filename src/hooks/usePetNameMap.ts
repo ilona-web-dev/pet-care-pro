@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
-import { usePetsQuery } from './usePetsQuery';
+import { useAllPetsQuery } from './useAllPetsQuery';
 
 function usePetNameMap() {
-  const { data: pets = [] } = usePetsQuery();
+  const { data: pets = [] } = useAllPetsQuery();
   return useMemo(
     () =>
       pets.reduce<Record<string, string>>((acc, pet) => {

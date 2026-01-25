@@ -1,10 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
 import { fetchVets } from '../services/vets';
 
-export function useVetsQuery() {
+type UseVetsQueryArgs = {
+  page: number;
+  rowsPerPage: number;
+};
+
+export function useVetsQuery({ page, rowsPerPage }: UseVetsQueryArgs) {
   return useQuery({
-    queryKey: ['vets'],
-    queryFn: fetchVets,
+    queryKey: ['vets', page, rowsPerPage],
+    queryFn: () => fetchVets(page, rowsPerPage),
     retry: 1,
   });
 }
