@@ -1,21 +1,22 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '../lib/supabaseClient';
+import { deletePet, PET_NOT_DELETED } from '../services/pets';
 import toast from 'react-hot-toast';
 
 function useDeletePetMutation() {
   const queryClient = useQueryClient();
 
   return useMutation<void, Error, string>({
-    mutationFn: async (petId) => {
-      const { error } = await supabase.from('pets').delete().eq('id', petId);
-      if (error) throw error;
-    },
+    mutationFn: deletePet,
     onSuccess: () => {
       toast.success('Pet deleted');
       queryClient.invalidateQueries({ queryKey: ['pets'] });
     },
     onError: (error) => {
-      toast.error(error.message ?? 'Failed to delete pet');
+      if (error.message === PET_NOT_DELETED) {
+        toast.error('You are not allowed to delete this pet');
+      } else {
+        toast.error(error.message ?? 'Failed to delete pet');
+      }
     },
   });
 }

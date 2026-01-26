@@ -119,3 +119,17 @@ export async function updatePet({ id, data }: UpdatePetPayload): Promise<Pet> {
   if (error) throw error;
   return mapPet(row);
 }
+
+export const PET_NOT_DELETED = 'PET_NOT_DELETED';
+
+export async function deletePet(id: string) {
+  const { data, error } = await supabase
+    .from('pets')
+    .delete()
+    .eq('id', id)
+    .select('id')
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) throw new Error(PET_NOT_DELETED);
+}

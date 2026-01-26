@@ -127,3 +127,17 @@ export async function updateVisit({
   if (error) throw error;
   return mapVisit(row);
 }
+
+export const VISIT_NOT_DELETED = 'VISIT_NOT_DELETED';
+
+export async function deleteVisit(id: string) {
+  const { data, error } = await supabase
+    .from('visits')
+    .delete()
+    .eq('id', id)
+    .select('id')
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) throw new Error(VISIT_NOT_DELETED);
+}

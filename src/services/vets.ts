@@ -98,3 +98,17 @@ export async function updateVet({ id, data }: UpdateVetPayload): Promise<Vet> {
   if (error) throw error;
   return mapVet(row);
 }
+
+export const VET_NOT_DELETED = 'VET_NOT_DELETED';
+
+export async function deleteVet(id: string) {
+  const { data, error } = await supabase
+    .from('vets')
+    .delete()
+    .eq('id', id)
+    .select('id')
+    .maybeSingle();
+
+  if (error) throw error;
+  if (!data) throw new Error(VET_NOT_DELETED);
+}

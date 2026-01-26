@@ -86,9 +86,9 @@ export async function createClient(
     .from('clients')
     .insert(mapCreateClientPayload(payload))
     .select()
-    .single<ClientRow>();
+    .maybeSingle<ClientRow>();
 
-  if (error) throw error;
+  if (error || !data) throw new Error('Client insert blocked');
   return mapClient(data);
 }
 
@@ -101,8 +101,22 @@ export async function updateClient({
     .update(mapUpdateClientPayload(data))
     .eq('id', id)
     .select()
-    .single<ClientRow>();
+    .maybeSingle<ClientRow>();
+
+  if (error || !row) throw error ?? new Error('Client update blocked by RLS');
+  return mapClient(row);
+}
+
+export const CLIENT_NOT_DELETED = 'CLIENT_NOT_DELETED';
+
+export async function deleteClient(id: string) {
+  const { data, error } = await supabase
+    .from('clients')
+    .delete()
+    .eq('id', id)
+    .select('id')
+    .maybeSingle();
 
   if (error) throw error;
-  return mapClient(row);
+  if (!data) throw new Error(CLIENT_NOT_DELETED);
 }
