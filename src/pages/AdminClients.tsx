@@ -16,11 +16,13 @@ import AdminHeader from '../components/admin/AdminHeader';
 import ClientFormDialog from '../components/admin/ClientFormDialog';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { useClientsQuery } from '../hooks/useClientsQuery';
 import useDeleteClientMutation from '../hooks/useDeleteClientMutation';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 import { type Client } from '../types/admin';
 import Pagination from '../components/shared/Pagination';
+import { useNavigate } from 'react-router-dom';
 
 export default function AdminClients() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -41,6 +43,8 @@ export default function AdminClients() {
   const clients = data?.data ?? [];
   const total = data?.count ?? 0;
   const totalPages = Math.ceil(total / rowsPerPage);
+
+  const navigate = useNavigate();
 
   return (
     <div className="space-y-3">
@@ -177,6 +181,13 @@ export default function AdminClients() {
                         onClick={() => setClientToDelete(client.id)}
                       >
                         <DeleteIcon fontSize="small" />
+                      </IconButton>
+
+                      <IconButton
+                        aria-label="View client"
+                        onClick={() => navigate(`/admin/clients/${client.id}`)}
+                      >
+                        <VisibilityOutlinedIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>

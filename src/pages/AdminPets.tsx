@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import AdminHeader from '../components/admin/AdminHeader';
 import { usePetsQuery } from '../hooks/usePetsQuery';
+import { useNavigate } from 'react-router';
 
 import {
   Alert,
@@ -17,6 +18,7 @@ import {
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import PetFormDialog from '../components/admin/PetFormDialog';
 import useOwnerNameMap from '../hooks/useOwnerNameMap';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
@@ -45,6 +47,7 @@ export default function AdminPets() {
 
   // Returns a memoized map of client ID -> full name for quick lookups
   const ownerNameById = useOwnerNameMap();
+  const navigate = useNavigate();
 
   return (
     <div className="-mx-6 overflow-x-auto px-6">
@@ -185,6 +188,12 @@ export default function AdminPets() {
                         onClick={() => setPetToDelele(pet.id)}
                       >
                         <DeleteIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        aria-label="View pet"
+                        onClick={() => navigate(`/admin/pets/${pet.id}`)}
+                      >
+                        <VisibilityOutlinedIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>

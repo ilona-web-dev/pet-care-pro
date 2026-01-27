@@ -1,0 +1,150 @@
+import { useParams, useNavigate } from 'react-router-dom';
+import AdminHeader from '../components/admin/AdminHeader';
+
+export default function PetDetail() {
+  const { petId } = useParams();
+  const navigate = useNavigate();
+
+  const pet = {
+    name: 'Buddy',
+    species: 'Dog',
+    breed: 'Labrador Retriever',
+    sex: 'Male',
+    birthDate: '2018-03-12',
+    weightKg: 4.3,
+    microchip: 'MC482193',
+    notes: 'Calm temperament, loves treats.',
+    owner: {
+      id: 'client-id',
+      fullName: 'Patrick Byrne',
+      email: 'patrick.byrne@outlook.com',
+      phone: '+3531234503',
+    },
+    visits: [
+      {
+        id: 'visit-1',
+        date: '2025-01-10',
+        reason: 'Routine checkup',
+        vet: 'Dr. Máire O’Sullivan',
+        status: 'completed',
+        notes: 'Healthy, scheduled next visit in 6 months.',
+      },
+    ],
+  };
+
+  return (
+    <div className="space-y-6">
+      <AdminHeader title="Pet details" />
+
+      <section className="space-y-4 rounded-2xl border border-slate-100 p-6">
+        <div>
+          <p className="text-xs font-semibold tracking-[0.3em] text-slate-500 uppercase">
+            Pet
+          </p>
+          <h1 className="text-2xl font-semibold text-slate-900">{pet.name}</h1>
+          <p className="text-sm text-slate-500">ID: {petId}</p>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <article className="rounded-xl border border-slate-100 p-4">
+            <h2 className="text-sm font-semibold text-slate-500 uppercase">
+              Basic info
+            </h2>
+            <dl className="mt-3 space-y-2 text-sm text-slate-700">
+              <div className="flex justify-between">
+                <dt>Species</dt>
+                <dd className="font-medium">{pet.species}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt>Breed</dt>
+                <dd className="font-medium">{pet.breed}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt>Sex</dt>
+                <dd className="font-medium">{pet.sex}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt>Birth date</dt>
+                <dd className="font-medium">{pet.birthDate}</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt>Weight</dt>
+                <dd className="font-medium">{pet.weightKg} kg</dd>
+              </div>
+              <div className="flex justify-between">
+                <dt>Microchip</dt>
+                <dd className="font-medium">{pet.microchip ?? '—'}</dd>
+              </div>
+            </dl>
+          </article>
+
+          <article className="rounded-xl border border-slate-100 p-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold text-slate-500 uppercase">
+                Owner
+              </h2>
+              <button
+                className="text-xs font-semibold text-teal-600"
+                onClick={() => navigate(`/admin/clients/${pet.owner.id}`)}
+              >
+                View profile →
+              </button>
+            </div>
+            <div className="mt-3 space-y-2 text-sm text-slate-700">
+              <p className="font-semibold text-slate-900">
+                {pet.owner.fullName}
+              </p>
+              <p>{pet.owner.email}</p>
+              <p>{pet.owner.phone}</p>
+            </div>
+          </article>
+        </div>
+
+        <article className="rounded-xl border border-slate-100 p-4">
+          <h2 className="text-sm font-semibold text-slate-500 uppercase">
+            Notes
+          </h2>
+          <p className="mt-2 text-sm text-slate-700">
+            {pet.notes ?? 'No notes yet.'}
+          </p>
+        </article>
+      </section>
+
+      <section className="space-y-4 rounded-2xl border border-slate-100 p-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-base font-semibold text-slate-800">
+              Visit history
+            </h2>
+            <p className="text-sm text-slate-500">
+              Last {pet.visits.length} visits
+            </p>
+          </div>
+          <button className="rounded-full bg-teal-600 px-4 py-2 text-sm text-white">
+            Schedule visit
+          </button>
+        </div>
+
+        <div className="space-y-3">
+          {pet.visits.map((visit) => (
+            <article
+              key={visit.id}
+              className="rounded-xl border border-slate-100 p-4 text-sm text-slate-700"
+            >
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-semibold text-slate-900">{visit.reason}</p>
+                <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold tracking-wide text-green-700 uppercase">
+                  {visit.status}
+                </span>
+              </div>
+              <p className="text-sm text-slate-500">
+                {visit.date} • {visit.vet}
+              </p>
+              <p className="mt-2 text-slate-700">{visit.notes}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
+}

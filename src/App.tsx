@@ -12,6 +12,8 @@ import AdminClients from './pages/AdminClients';
 import AdminPets from './pages/AdminPets';
 import AdminVisits from './pages/AdminVisits';
 import AdminVets from './pages/AdminVets';
+import ClientDetails from './pages/ClientDetails';
+import PetDetails from './pages/PetDetails';
 
 import { RouterProvider } from 'react-router-dom';
 
@@ -36,6 +38,8 @@ const router = createBrowserRouter([
           { path: 'pets', element: <AdminPets /> },
           { path: 'visits', element: <AdminVisits /> },
           { path: 'vets', element: <AdminVets /> },
+          { path: 'clients/:clientId', element: <ClientDetails /> },
+          { path: 'pets/:petId', element: <PetDetails /> },
         ],
       },
     ],
