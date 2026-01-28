@@ -82,3 +82,5 @@ export type ClientSort =
   | 'name-desc'
   | 'created-asc'
   | 'created-desc';
+
+export type PetSort = 'name-asc' | 'name-desc' | 'created-asc' | 'created-desc';

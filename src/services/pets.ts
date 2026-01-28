@@ -1,5 +1,12 @@
 import { supabase } from '../lib/supabaseClient';
-import type { Pet, PetResponse, PetSex, PetSpecies } from '../types/admin';
+
+import type {
+  Pet,
+  PetResponse,
+  PetSex,
+  PetSort,
+  PetSpecies,
+} from '../types/admin';
 
 export type PetRow = {
   id: string;
@@ -70,18 +77,46 @@ const mapUpdatePetPayload = (payload: Partial<CreatePetPayload>) => ({
   notes: payload.notes ?? undefined,
 });
 
+type FetchPetsOptions = {
+  search?: string;
+  sort: PetSort;
+};
+
 export async function fetchPets(
   page: number,
   rowsPerPage: number,
+  filters?: FetchPetsOptions,
 ): Promise<PetResponse> {
   const from = page * rowsPerPage;
   const to = from + rowsPerPage - 1;
+  const searchValue = filters?.search?.trim();
+  const sortValue = filters?.sort ?? 'name-asc';
 
-  const { data, error, count } = await supabase
-    .from('pets')
-    .select('*', { count: 'exact' })
-    .order('created_at')
-    .range(from, to);
+  let query = supabase.from('pets').select('*', { count: 'exact' });
+
+  if (searchValue) {
+    const pattern = `%${searchValue}%`;
+    query = query.or(
+      `name.ilike.${pattern},species.ilike.${pattern},breed.ilike.${pattern}`,
+    );
+  }
+
+  switch (sortValue) {
+    case 'name-desc':
+      query = query.order('name', { ascending: false });
+      break;
+    case 'name-asc':
+      query = query.order('name', { ascending: true });
+      break;
+    case 'created-desc':
+      query = query.order('created_at', { ascending: false });
+      break;
+    case 'created-asc':
+      query = query.order('created_at', { ascending: true });
+      break;
+  }
+
+  const { data, error, count } = await query.range(from, to);
 
   if (error) throw error;
   const rows = (data ?? []) as PetRow[];

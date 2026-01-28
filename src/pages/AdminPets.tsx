@@ -15,6 +15,11 @@ import {
   TableCell,
   Typography,
   IconButton,
+  TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -23,13 +28,18 @@ import PetFormDialog from '../components/admin/PetFormDialog';
 import useOwnerNameMap from '../hooks/useOwnerNameMap';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 import useDeletePetMutation from '../hooks/useDeletePetMutation';
-import { type Pet } from '../types/admin';
+import type { Pet, PetSort } from '../types/admin';
 import Pagination from '../components/shared/Pagination';
 
 export default function AdminPets() {
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [petToDelete, setPetToDelele] = useState<string | null>(null);
   const [editingPet, setEditingPet] = useState<Pet | null>(null);
+
+  const [searchInput, setSearchInput] = useState('');
+  const search = searchInput.length >= 2 ? searchInput : '';
+
+  const [sort, setSort] = useState<PetSort>('name-asc');
 
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
@@ -39,6 +49,8 @@ export default function AdminPets() {
   const { data, isPending, isError, error, refetch } = usePetsQuery({
     page,
     rowsPerPage,
+    search,
+    sort,
   });
 
   const pets = data?.data ?? [];
@@ -59,6 +71,62 @@ export default function AdminPets() {
           setDialogOpen(true);
         }}
       />
+
+      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+        <div className="flex flex-wrap gap-4">
+          <TextField
+            size="small"
+            label="Search pets by name, species or breed"
+            value={searchInput}
+            onChange={(event) => {
+              setPage(0);
+              setSearchInput(event.target.value);
+            }}
+            sx={{
+              flex: '1 1 220px',
+              minWidth: 200,
+              '& .MuiInputBase-root': {
+                height: 36,
+                fontSize: 13,
+              },
+              '& .MuiInputLabel-root': {
+                fontSize: 13,
+              },
+            }}
+          />
+          <FormControl
+            size="small"
+            sx={{
+              flex: '1 1 220px',
+              minWidth: 200,
+              '& .MuiInputBase-root': {
+                height: 36,
+                fontSize: 13,
+              },
+              '& .MuiInputLabel-root': {
+                fontSize: 13,
+              },
+            }}
+          >
+            <InputLabel id="pets-sort-label">Sort by</InputLabel>
+            <Select
+              labelId="pets-sort-label"
+              value={sort}
+              label="Sort by"
+              onChange={(event) => {
+                setPage(0);
+                setSort(event.target.value as PetSort);
+              }}
+            >
+              <MenuItem value="name-asc">Pet's name A → Z</MenuItem>
+              <MenuItem value="name-desc">Pet's name Z → A</MenuItem>
+              <MenuItem value="created-desc">Newest first</MenuItem>
+              <MenuItem value="created-asc">Oldest first</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+      </div>
+
       <PetFormDialog
         open={isDialogOpen}
         onClose={() => {
