@@ -76,3 +76,9 @@ export type VetResponse = {
   data: Vet[];
   count: number;
 };
+
+export type ClientSort =
+  | 'name-asc'
+  | 'name-desc'
+  | 'created-asc'
+  | 'created-desc';

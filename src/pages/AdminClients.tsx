@@ -10,7 +10,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 import AdminHeader from '../components/admin/AdminHeader';
 import ClientFormDialog from '../components/admin/ClientFormDialog';
@@ -20,7 +25,7 @@ import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { useClientsQuery } from '../hooks/useClientsQuery';
 import useDeleteClientMutation from '../hooks/useDeleteClientMutation';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
-import { type Client } from '../types/admin';
+import type { Client, ClientSort } from '../types/admin';
 import Pagination from '../components/shared/Pagination';
 import { useNavigate } from 'react-router-dom';
 
@@ -28,7 +33,9 @@ export default function AdminClients() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<string | null>(null);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
-
+  const [searchInput, setSearchInput] = useState('');
+  const search = searchInput.length >= 2 ? searchInput : '';
+  const [sort, setSort] = useState<ClientSort>('name-asc');
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
 
@@ -38,6 +45,8 @@ export default function AdminClients() {
   const { data, isPending, isError, error, refetch } = useClientsQuery({
     page,
     rowsPerPage,
+    search,
+    sort,
   });
 
   const clients = data?.data ?? [];
@@ -56,6 +65,68 @@ export default function AdminClients() {
           setIsDialogOpen(true);
         }}
       />
+
+      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+        <div className="flex flex-wrap gap-4">
+          <TextField
+            size="small"
+            label="Search clients"
+            value={searchInput}
+            onChange={(event) => {
+              setPage(0);
+              setSearchInput(event.target.value);
+            }}
+            sx={{
+              flex: '1 1 220px',
+              minWidth: 200,
+              '& .MuiInputBase-root': {
+                height: 36,
+                fontSize: 13,
+              },
+              '& .MuiInputLabel-root': {
+                fontSize: 13,
+              },
+            }}
+          />
+
+          <FormControl
+            size="small"
+            sx={{
+              flex: '1 1 220px',
+              minWidth: 200,
+              '& .MuiInputBase-root': {
+                height: 36,
+                fontSize: 13,
+              },
+              '& .MuiInputLabel-root': {
+                fontSize: 13,
+              },
+            }}
+          >
+            <InputLabel id="clients-sort-label">Sort by</InputLabel>
+            <Select
+              labelId="clients-sort-label"
+              value={sort}
+              label="Sort by"
+              onChange={(event) => {
+                setPage(0);
+                setSort(
+                  event.target.value as
+                    | 'name-asc'
+                    | 'name-desc'
+                    | 'created-desc'
+                    | 'created-asc',
+                );
+              }}
+            >
+              <MenuItem value="name-asc">Name A → Z</MenuItem>
+              <MenuItem value="name-desc">Name Z → A</MenuItem>
+              <MenuItem value="created-desc">Newest first</MenuItem>
+              <MenuItem value="created-asc">Oldest first</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+      </div>
 
       {isPending && (
         <div className="flex items-center justify-center py-10">

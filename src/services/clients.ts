@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
-import type { Client, ClientResponse } from '../types/admin';
+import type { Client, ClientResponse, ClientSort } from '../types/admin';
 
 export type ClientRow = {
   id: string;
@@ -50,18 +50,43 @@ const mapUpdateClientPayload = (payload: Partial<CreateClientPayload>) => ({
   notes: payload.notes ?? undefined,
 });
 
+type FetchClientsOptions = {
+  search?: string;
+  sort?: ClientSort;
+};
+
 export async function fetchClients(
   page: number,
   rowsPerPage: number,
+  filters?: FetchClientsOptions,
 ): Promise<ClientResponse> {
   const from = page * rowsPerPage;
   const to = from + rowsPerPage - 1;
+  const searchValue = filters?.search?.trim();
+  const sortValue = filters?.sort ?? 'name-asc';
 
-  const { data, error, count } = await supabase
-    .from('clients')
-    .select('*', { count: 'exact' })
-    .order('created_at')
-    .range(from, to);
+  let query = supabase.from('clients').select('*', { count: 'exact' });
+
+  if (searchValue) {
+    const pattern = `%${searchValue}%`;
+    query = query.or(`full_name.ilike.${pattern},email.ilike.${pattern}`);
+  }
+
+  switch (sortValue) {
+    case 'name-desc':
+      query = query.order('full_name', { ascending: false });
+      break;
+    case 'name-asc':
+      query = query.order('full_name', { ascending: true });
+      break;
+    case 'created-desc':
+      query = query.order('created_at', { ascending: false });
+      break;
+    case 'created-asc':
+      query = query.order('created_at', { ascending: true });
+      break;
+  }
+  const { data, error, count } = await query.range(from, to);
 
   if (error) throw error;
   const rows = (data ?? []) as ClientRow[];
