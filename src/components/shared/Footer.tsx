@@ -3,10 +3,10 @@ import { MdLocationOn, MdMailOutline, MdPhoneIphone } from 'react-icons/md';
 import Logo from '../shared/Logo';
 
 const navigationLinks = [
-  { label: 'Services', href: '#services' },
-  { label: 'Team', href: '#team' },
-  { label: 'Reviews', href: '#reviews' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Services', href: '/#services' },
+  { label: 'Team', href: '/#team' },
+  { label: 'Reviews', href: '/#reviews' },
+  { label: 'Contact', href: '/#contact' },
 ];
 
 const officeHours = [

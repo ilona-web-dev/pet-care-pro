@@ -16,6 +16,7 @@ import ClientDetails from './pages/ClientDetails';
 import PetDetails from './pages/PetDetails';
 
 import { RouterProvider } from 'react-router-dom';
+import NotFound from './pages/NotFound';
 
 const router = createBrowserRouter([
   {
@@ -24,6 +25,7 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: 'login', element: <Login /> },
+      { path: '*', element: <NotFound /> },
     ],
   },
   {
@@ -40,6 +42,7 @@ const router = createBrowserRouter([
           { path: 'vets', element: <AdminVets /> },
           { path: 'clients/:clientId', element: <ClientDetails /> },
           { path: 'pets/:petId', element: <PetDetails /> },
+          { path: '*', element: <NotFound /> },
         ],
       },
     ],
