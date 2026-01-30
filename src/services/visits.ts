@@ -1,9 +1,10 @@
 import { supabase } from '../lib/supabaseClient';
-import {
-  type Visit,
-  type VisitReason,
-  type VisitResponse,
-  type VisitStatus,
+import type {
+  Visit,
+  VisitReason,
+  VisitResponse,
+  VisitStatus,
+  VisitsSortByDate,
 } from '../types/admin';
 
 export type VisitRow = {
@@ -74,18 +75,40 @@ const mapUpdateVisitPayload = (payload: Partial<CreateVisitPayload>) => ({
   notes: payload.notes ?? undefined,
 });
 
+type FetchVisitsOptions = {
+  sort?: VisitsSortByDate;
+  reason?: VisitReason | 'all';
+  status?: VisitStatus | 'all';
+};
+
 export async function fetchVisits(
   page: number,
   rowsPerPage: number,
+  filters?: FetchVisitsOptions,
 ): Promise<VisitResponse> {
+  const sortValue = filters?.sort ?? 'date-desc';
+  let query = supabase.from('visits').select('*', { count: 'exact' });
+
+  if (filters?.reason && filters.reason !== 'all') {
+    query = query.eq('reason', filters.reason);
+  }
+
+  if (filters?.status && filters.status !== 'all') {
+    query = query.eq('status', filters.status);
+  }
+
+  switch (sortValue) {
+    case 'date-asc':
+      query = query.order('visit_date', { ascending: true });
+      break;
+    default:
+      query = query.order('visit_date', { ascending: false });
+  }
+
   const from = page * rowsPerPage;
   const to = from + rowsPerPage - 1;
 
-  const { data, error, count } = await supabase
-    .from('visits')
-    .select('*', { count: 'exact' })
-    .order('created_at')
-    .range(from, to);
+  const { data, error, count } = await query.range(from, to);
 
   if (error) throw error;
   const rows = (data ?? []) as VisitRow[];

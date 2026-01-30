@@ -19,27 +19,37 @@ import {
   TableRow,
   Typography,
   IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from '@mui/material';
 
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import useDeleteVisitMutation from '../hooks/useDeleteVisitMutation';
-import { type Visit } from '../types/admin';
+import type { Visit, VisitReason, VisitStatus } from '../types/admin';
+import type { VisitsSortByDate } from '../types/admin';
 
 export default function AdminVisits() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [visitToDelete, setVisitToDelete] = useState<string | null>(null);
   const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
+  const [sortByDate, setSortByDate] = useState<VisitsSortByDate>('date-asc');
+  const [filterByReason, setFilterByReason] = useState<VisitReason | 'all'>(
+    'all',
+  );
+  const [sortByStatus, setSortByStatus] = useState<VisitStatus | 'all'>('all');
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
 
-  const {
-    data,
-    isPending,
-    isError,
-    error,
-    refetch,
-  } = useVisitsQuery({ page, rowsPerPage });
+  const { data, isPending, isError, error, refetch } = useVisitsQuery({
+    page,
+    rowsPerPage,
+    sort: sortByDate,
+    reason: filterByReason,
+    status: sortByStatus,
+  });
 
   const visits = data?.data ?? [];
   const total = data?.count ?? 0;
@@ -61,6 +71,107 @@ export default function AdminVisits() {
           setIsDialogOpen(true);
         }}
       />
+
+      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
+        <div className="flex flex-wrap gap-4">
+          <FormControl
+            size="small"
+            sx={{
+              flex: '1 1 220px',
+              minWidth: 200,
+              '& .MuiInputBase-root': {
+                height: 36,
+                fontSize: 13,
+              },
+              '& .MuiInputLabel-root': {
+                fontSize: 13,
+              },
+            }}
+          >
+            <InputLabel id="visits-sortByDate-label">Sort by date</InputLabel>
+            <Select
+              labelId="visits-sortByDate-label"
+              value={sortByDate}
+              label="Sort by date"
+              onChange={(event) => {
+                setPage(0);
+                setSortByDate(event.target.value as VisitsSortByDate);
+              }}
+            >
+              <MenuItem value="date-desc">Newest visits</MenuItem>
+              <MenuItem value="date-asc">Oldest visits</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl
+            size="small"
+            sx={{
+              flex: '1 1 220px',
+              minWidth: 200,
+              '& .MuiInputBase-root': {
+                height: 36,
+                fontSize: 13,
+              },
+              '& .MuiInputLabel-root': {
+                fontSize: 13,
+              },
+            }}
+          >
+            <InputLabel id="visits-filterByReason-label">
+              Sort by reason
+            </InputLabel>
+            <Select
+              labelId="visits-filterByReason-label"
+              value={filterByReason}
+              label="Filter by reason"
+              onChange={(event) => {
+                setPage(0);
+                setFilterByReason(event.target.value as VisitReason);
+              }}
+            >
+              <MenuItem value="all">All reasons</MenuItem>
+              <MenuItem value="routine_checkup">Routine Checkup</MenuItem>
+              <MenuItem value="vaccination">Vaccination</MenuItem>
+              <MenuItem value="follow_up">Follow-up</MenuItem>
+              <MenuItem value="grooming">Grooming</MenuItem>
+              <MenuItem value="other">Other</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl
+            size="small"
+            sx={{
+              flex: '1 1 220px',
+              minWidth: 200,
+              '& .MuiInputBase-root': {
+                height: 36,
+                fontSize: 13,
+              },
+              '& .MuiInputLabel-root': {
+                fontSize: 13,
+              },
+            }}
+          >
+            <InputLabel id="visits-sortByStatus-label">
+              Sort by status
+            </InputLabel>
+            <Select
+              labelId="visits-sortByStatus-label"
+              value={sortByStatus}
+              label="Sort by status"
+              onChange={(event) => {
+                setPage(0);
+                setSortByStatus(event.target.value as VisitStatus);
+              }}
+            >
+              <MenuItem value="all">All statuses</MenuItem>
+              <MenuItem value="planned">Planned</MenuItem>
+              <MenuItem value="in_progress">In progress</MenuItem>
+              <MenuItem value="completed">Completed</MenuItem>
+              <MenuItem value="cancelled">Cancelled</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
+      </div>
+
       <VisitFormDialog
         open={isDialogOpen}
         onClose={() => {

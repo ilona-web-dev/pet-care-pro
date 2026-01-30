@@ -84,3 +84,5 @@ export type ClientSort =
   | 'created-desc';
 
 export type PetSort = 'name-asc' | 'name-desc' | 'created-asc' | 'created-desc';
+
+export type VisitsSortByDate = 'date-desc' | 'date-asc';
