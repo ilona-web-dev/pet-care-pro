@@ -1,5 +1,8 @@
 import { supabase } from '../lib/supabaseClient';
 import type { Client, ClientResponse, ClientSort } from '../types/admin';
+import { mapPet, type PetRow } from './pets';
+import type { Visit } from '../types/admin';
+import { mapVisit } from './visits';
 
 export type ClientRow = {
   id: string;
@@ -144,4 +147,32 @@ export async function deleteClient(id: string) {
 
   if (error) throw error;
   if (!data) throw new Error(CLIENT_NOT_DELETED);
+}
+
+export async function fetchClientDetails(clientId: string) {
+  const { data, error } = await supabase
+    .from('clients')
+    .select('*, pets(*)', { count: 'exact' })
+    .eq('id', clientId)
+    .maybeSingle<ClientRow & { pets: PetRow[] }>();
+
+  if (error || !data) throw error ?? new Error('Client not found');
+
+  const client = mapClient(data);
+  const pets = (data.pets ?? []).map((petRow: PetRow) => mapPet(petRow));
+
+  let visits: Visit[] = [];
+  if (pets.length) {
+    const petIds = pets.map((pet) => pet.id);
+    const { data: visitRows, error: visitsError } = await supabase
+      .from('visits')
+      .select('*')
+      .in('pet_id', petIds)
+      .order('visit_date', { ascending: false });
+
+    if (visitsError) throw visitsError;
+    visits = (visitRows ?? []).map(mapVisit);
+  }
+
+  return { client, pets, visits };
 }
