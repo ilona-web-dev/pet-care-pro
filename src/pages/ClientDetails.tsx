@@ -1,14 +1,30 @@
-import { useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import useClientDetailsQuery from '../hooks/useClientDetailsQuery';
 import { Alert, CircularProgress } from '@mui/material';
+import PetFormDialog from '../components/admin/PetFormDialog';
+import VisitFormDialog from '../components/admin/VisitFormDialog';
 
 export default function ClientDetails() {
+  const [isPetDialogOpen, setPetDialogOpen] = useState(false);
+  const [isVisitDialogOpen, setVisitDialogOpen] = useState(false);
+  const [defaultVisitPetId, setDefaultVisitPetId] = useState<
+    string | undefined
+  >();
   const { clientId } = useParams<{ clientId: string }>();
+  const navigate = useNavigate();
   const { data, isPending, isError, error } = useClientDetailsQuery(clientId);
 
   const client = data?.client;
   const pets = data?.pets ?? [];
   const visits = data?.visits ?? [];
+  const clientPetOptions = pets
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((pet) => ({
+      value: pet.id,
+      label: `${pet.name} (${pet.species})`,
+    }));
 
   if (isPending)
     return (
@@ -64,7 +80,7 @@ export default function ClientDetails() {
           </dl>
         </article>
         <article className="rounded-2xl border border-slate-100 p-6 shadow-sm">
-          <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+          <h2 className="text-xs font-semibold tracking-[0.2em] text-slate-500 uppercase">
             Notes
           </h2>
           <p className="mt-4 text-sm text-slate-700">
@@ -75,7 +91,12 @@ export default function ClientDetails() {
       <section className="rounded-2xl border border-slate-100 p-4">
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-800">Pets</h2>
-          <button className="text-sm text-teal-600">Add pet</button>
+          <button
+            className="cursor-pointer text-sm text-teal-600"
+            onClick={() => setPetDialogOpen(true)}
+          >
+            Add pet
+          </button>
         </div>
         {pets.length === 0 ? (
           <p className="mt-4 text-sm text-slate-500">
@@ -89,7 +110,7 @@ export default function ClientDetails() {
                 className="rounded-xl border border-slate-100 p-4 text-sm shadow-sm"
               >
                 <div className="font-semibold text-slate-900">{pet.name}</div>
-                <p className="text-xs uppercase tracking-wide text-slate-500">
+                <p className="text-xs tracking-wide text-slate-500 uppercase">
                   {pet.species}
                 </p>
                 <p className="mt-2 text-slate-600">
@@ -108,7 +129,16 @@ export default function ClientDetails() {
           <h2 className="text-base font-semibold text-slate-800">
             Recent visits
           </h2>
-          <button className="text-sm text-teal-600">Schedule visit</button>
+          <button
+            className="cursor-pointer text-sm text-teal-600 disabled:cursor-not-allowed disabled:text-slate-300"
+            onClick={() => {
+              setDefaultVisitPetId(clientPetOptions[0]?.value);
+              setVisitDialogOpen(true);
+            }}
+            disabled={clientPetOptions.length === 0}
+          >
+            Schedule visit
+          </button>
         </div>
         {visits.length === 0 ? (
           <p className="mt-4 text-sm text-slate-500">
@@ -117,11 +147,11 @@ export default function ClientDetails() {
         ) : (
           <div className="mt-4 overflow-x-auto">
             <table className="min-w-full text-left text-sm">
-              <thead className="text-xs uppercase text-slate-500">
+              <thead className="text-xs text-slate-500 uppercase">
                 <tr>
-                  <th className="pb-2 pr-4">Date</th>
-                  <th className="pb-2 pr-4">Pet</th>
-                  <th className="pb-2 pr-4">Status</th>
+                  <th className="pr-4 pb-2">Date</th>
+                  <th className="pr-4 pb-2">Pet</th>
+                  <th className="pr-4 pb-2">Status</th>
                   <th className="pb-2">Reason</th>
                 </tr>
               </thead>
@@ -148,6 +178,25 @@ export default function ClientDetails() {
           </div>
         )}
       </section>
+      <VisitFormDialog
+        open={isVisitDialogOpen}
+        onClose={() => setVisitDialogOpen(false)}
+        defaultPetId={defaultVisitPetId}
+        petOptionsOverride={clientPetOptions}
+      />
+      <PetFormDialog
+        open={isPetDialogOpen}
+        onClose={() => setPetDialogOpen(false)}
+        defaultOwnerId={client.id}
+      />
+      <div className="flex justify-start">
+        <button
+          className="cursor-pointer text-sm text-slate-500 hover:text-slate-800"
+          onClick={() => navigate(-1)}
+        >
+          ← Back
+        </button>
+      </div>
     </div>
   );
 }

@@ -17,6 +17,7 @@ import useOwnerNameMap from '../../hooks/useOwnerNameMap';
 import useUpdateVisitMutation from '../../hooks/useUpdateVisitMutation';
 import toast from 'react-hot-toast';
 import type { Visit } from '../../types/admin';
+import type { SelectOption } from '../ui/form/FormSelect';
 
 const visitSchema = z.object({
   visitDate: z.string().min(1, 'Select date'),
@@ -42,6 +43,8 @@ type Props = {
   open: boolean;
   onClose: () => void;
   initialValues?: Visit | null;
+  defaultPetId?: string;
+  petOptionsOverride?: SelectOption[];
 };
 
 const VISIT_FORM_DEFAULTS: VisitFormValues = {
@@ -60,6 +63,8 @@ export default function VisitFormDialog({
   open,
   onClose,
   initialValues,
+  defaultPetId,
+  petOptionsOverride,
 }: Props) {
   const form = useForm<VisitFormValues>({
     resolver: zodResolver(visitSchema),
@@ -83,8 +88,11 @@ export default function VisitFormDialog({
       });
       return;
     }
-    form.reset(VISIT_FORM_DEFAULTS);
-  }, [initialValues, form]);
+    form.reset({
+      ...VISIT_FORM_DEFAULTS,
+      petId: defaultPetId ?? '',
+    });
+  }, [initialValues, form, defaultPetId]);
 
   const isEditMode = Boolean(initialValues);
 
@@ -132,13 +140,18 @@ export default function VisitFormDialog({
   const { data: vets = [] } = useAllVetsQuery();
   const ownerNameById = useOwnerNameMap();
 
-  const petOptions = pets
+  const fallbackPetOptions = pets
     .slice()
     .sort((a, b) => a.name.localeCompare(b.name))
     .map((pet) => ({
       value: pet.id,
       label: `${pet.name} · Owner: ${ownerNameById[pet.ownerId] ?? 'Unknown'}`,
     }));
+
+  const petOptions =
+    petOptionsOverride && petOptionsOverride.length > 0
+      ? petOptionsOverride
+      : fallbackPetOptions;
 
   const vetOptions = vets
     .slice()

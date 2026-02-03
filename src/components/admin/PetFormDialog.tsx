@@ -34,6 +34,7 @@ type Props = {
   open: boolean;
   onClose: () => void;
   initialValues?: Pet | null;
+  defaultOwnerId?: string;
 };
 
 const PET_FORM_DEFAULTS: PetFormValues = {
@@ -52,6 +53,7 @@ export default function PetFormDialog({
   open,
   onClose,
   initialValues,
+  defaultOwnerId,
 }: Props) {
   const { data: clients = [] } = useAllClientsQuery();
   const ownerOptions = clients
@@ -84,8 +86,11 @@ export default function PetFormDialog({
       });
       return;
     }
-    form.reset(PET_FORM_DEFAULTS);
-  }, [initialValues, form]);
+    form.reset({
+      ...PET_FORM_DEFAULTS,
+      ownerId: defaultOwnerId ?? '',
+    });
+  }, [initialValues, form, defaultOwnerId]);
 
   const isEditMode = Boolean(initialValues);
 

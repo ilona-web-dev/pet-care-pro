@@ -5,6 +5,9 @@ export default function useCreatePetMutation() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: createPet,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['pets'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['pets'] });
+      queryClient.invalidateQueries({ queryKey: ['client-details'] });
+    },
   });
 }

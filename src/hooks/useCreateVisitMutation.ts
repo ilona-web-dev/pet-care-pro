@@ -10,6 +10,7 @@ function useCreateVisitMutation() {
     onSuccess: (newVisit) => {
       toast.success(`Visit ${newVisit.id} added`);
       queryClient.invalidateQueries({ queryKey: ['visits'] });
+      queryClient.invalidateQueries({ queryKey: ['client-details'] });
     },
     onError: (error) => {
       const message =
