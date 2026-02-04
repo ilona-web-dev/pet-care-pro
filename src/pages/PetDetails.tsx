@@ -1,36 +1,36 @@
 import { useParams, useNavigate } from 'react-router-dom';
+import { Alert, CircularProgress } from '@mui/material';
 import AdminHeader from '../components/admin/AdminHeader';
+import usePetDetailsQuery from '../hooks/usePetDetailsQuery';
 
 export default function PetDetail() {
-  const { petId } = useParams();
+  const { petId } = useParams<{ petId: string }>();
   const navigate = useNavigate();
+  const { data, isPending, isError, error } = usePetDetailsQuery(petId);
 
-  const pet = {
-    name: 'Buddy',
-    species: 'Dog',
-    breed: 'Labrador Retriever',
-    sex: 'Male',
-    birthDate: '2018-03-12',
-    weightKg: 4.3,
-    microchip: 'MC482193',
-    notes: 'Calm temperament, loves treats.',
-    owner: {
-      id: 'client-id',
-      fullName: 'Patrick Byrne',
-      email: 'patrick.byrne@outlook.com',
-      phone: '+3531234503',
-    },
-    visits: [
-      {
-        id: 'visit-1',
-        date: '2025-01-10',
-        reason: 'Routine checkup',
-        vet: 'Dr. Máire O’Sullivan',
-        status: 'completed',
-        notes: 'Healthy, scheduled next visit in 6 months.',
-      },
-    ],
-  };
+  if (isPending) {
+    return (
+      <div className="flex justify-center py-10">
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <Alert severity="error" className="rounded-2xl">
+        Failed to load pet. {error?.message}
+      </Alert>
+    );
+  }
+
+  if (!data?.pet || !data.owner) {
+    return <Alert severity="warning">Pet could not be found.</Alert>;
+  }
+
+  const pet = data.pet;
+  const owner = data.owner;
+  const visits = data.visits ?? [];
 
   return (
     <div className="space-y-6">
@@ -57,19 +57,19 @@ export default function PetDetail() {
               </div>
               <div className="flex justify-between">
                 <dt>Breed</dt>
-                <dd className="font-medium">{pet.breed}</dd>
+                <dd className="font-medium">{pet.breed ?? '—'}</dd>
               </div>
               <div className="flex justify-between">
                 <dt>Sex</dt>
-                <dd className="font-medium">{pet.sex}</dd>
+                <dd className="font-medium">{pet.sex ?? '—'}</dd>
               </div>
               <div className="flex justify-between">
                 <dt>Birth date</dt>
-                <dd className="font-medium">{pet.birthDate}</dd>
+                <dd className="font-medium">{pet.birthDate ?? '—'}</dd>
               </div>
               <div className="flex justify-between">
                 <dt>Weight</dt>
-                <dd className="font-medium">{pet.weightKg} kg</dd>
+                <dd className="font-medium">{pet.weightKg ? `${pet.weightKg} kg` : '—'}</dd>
               </div>
               <div className="flex justify-between">
                 <dt>Microchip</dt>
@@ -84,18 +84,16 @@ export default function PetDetail() {
                 Owner
               </h2>
               <button
-                className="text-xs font-semibold text-teal-600"
-                onClick={() => navigate(`/admin/clients/${pet.owner.id}`)}
+                className="text-xs font-semibold text-teal-600 cursor-pointer"
+                onClick={() => navigate(`/admin/clients/${owner.id}`)}
               >
                 View profile →
               </button>
             </div>
             <div className="mt-3 space-y-2 text-sm text-slate-700">
-              <p className="font-semibold text-slate-900">
-                {pet.owner.fullName}
-              </p>
-              <p>{pet.owner.email}</p>
-              <p>{pet.owner.phone}</p>
+              <p className="font-semibold text-slate-900">{owner.fullName}</p>
+              <p>{owner.email}</p>
+              <p>{owner.phone}</p>
             </div>
           </article>
         </div>
@@ -117,32 +115,38 @@ export default function PetDetail() {
               Visit history
             </h2>
             <p className="text-sm text-slate-500">
-              Last {pet.visits.length} visits
+              Last {visits.length} visits
             </p>
           </div>
-          <button className="rounded-full bg-teal-600 px-4 py-2 text-sm text-white">
+          <button className="rounded-full bg-teal-600 px-4 py-2 text-sm text-white cursor-pointer">
             Schedule visit
           </button>
         </div>
 
         <div className="space-y-3">
-          {pet.visits.map((visit) => (
+          {visits.map((visit) => (
             <article
               key={visit.id}
               className="rounded-xl border border-slate-100 p-4 text-sm text-slate-700"
             >
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <p className="font-semibold text-slate-900">{visit.reason}</p>
+                <p className="font-semibold text-slate-900">
+                  {visit.reason.replace('_', ' ')}
+                </p>
                 <span className="rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold tracking-wide text-green-700 uppercase">
-                  {visit.status}
+                  {visit.status.replace('_', ' ')}
                 </span>
               </div>
               <p className="text-sm text-slate-500">
-                {visit.date} • {visit.vet}
+                {new Date(visit.visitDate).toLocaleDateString()}
+                {visit.vetId ? ` • Vet ${visit.vetId.slice(0, 8)}` : ''}
               </p>
-              <p className="mt-2 text-slate-700">{visit.notes}</p>
+              <p className="mt-2 text-slate-700">{visit.notes ?? '—'}</p>
             </article>
           ))}
+          {visits.length === 0 && (
+            <p className="text-sm text-slate-500">No visits yet.</p>
+          )}
         </div>
       </section>
     </div>

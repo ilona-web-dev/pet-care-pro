@@ -1,4 +1,6 @@
 import { supabase } from '../lib/supabaseClient';
+import { mapVisit } from './visits';
+import { mapClient, type ClientRow } from './clients';
 
 import type {
   Pet,
@@ -167,4 +169,35 @@ export async function deletePet(id: string) {
 
   if (error) throw error;
   if (!data) throw new Error(PET_NOT_DELETED);
+}
+
+export async function fetchPetDetails(petId: string) {
+  const { data: petRow, error: petError } = await supabase
+    .from('pets')
+    .select('*')
+    .eq('id', petId)
+    .maybeSingle<PetRow>();
+
+  if (petError || !petRow) throw petError ?? new Error('Pet not found');
+  const pet = mapPet(petRow);
+
+  const { data: ownerRow, error: ownerError } = await supabase
+    .from('clients')
+    .select('*')
+    .eq('id', petRow.owner_id)
+    .maybeSingle<ClientRow>();
+
+  if (ownerError || !ownerRow) throw ownerError ?? new Error('Owner not found');
+  const owner = mapClient(ownerRow);
+
+  const { data: visitRows, error: visitError } = await supabase
+    .from('visits')
+    .select('*')
+    .eq('pet_id', petId)
+    .order('visit_date', { ascending: false });
+
+  if (visitError) throw visitError;
+  const visits = (visitRows ?? []).map(mapVisit);
+
+  return { pet, owner, visits };
 }
