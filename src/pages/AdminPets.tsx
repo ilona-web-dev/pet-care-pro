@@ -241,6 +241,12 @@ export default function AdminPets() {
                     </TableCell>
                     <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                       <IconButton
+                        aria-label="View pet"
+                        onClick={() => navigate(`/admin/pets/${pet.id}`)}
+                      >
+                        <VisibilityOutlinedIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
                         size="small"
                         color="primary"
                         onClick={() => {
@@ -256,12 +262,6 @@ export default function AdminPets() {
                         onClick={() => setPetToDelele(pet.id)}
                       >
                         <DeleteIcon fontSize="small" />
-                      </IconButton>
-                      <IconButton
-                        aria-label="View pet"
-                        onClick={() => navigate(`/admin/pets/${pet.id}`)}
-                      >
-                        <VisibilityOutlinedIcon fontSize="small" />
                       </IconButton>
                     </TableCell>
                   </TableRow>
