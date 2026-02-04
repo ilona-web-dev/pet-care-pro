@@ -9,6 +9,7 @@ export default function useUpdatePetMutation() {
     mutationFn: updatePet,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pets'] });
+      queryClient.invalidateQueries({ queryKey: ['pet-details'] });
     },
   });
 }

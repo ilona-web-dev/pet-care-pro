@@ -8,6 +8,7 @@ export default function useCreatePetMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['pets'] });
       queryClient.invalidateQueries({ queryKey: ['client-details'] });
+      queryClient.invalidateQueries({ queryKey: ['pet-details'] });
     },
   });
 }

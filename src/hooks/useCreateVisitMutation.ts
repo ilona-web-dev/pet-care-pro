@@ -11,6 +11,7 @@ function useCreateVisitMutation() {
       toast.success(`Visit ${newVisit.id} added`);
       queryClient.invalidateQueries({ queryKey: ['visits'] });
       queryClient.invalidateQueries({ queryKey: ['client-details'] });
+      queryClient.invalidateQueries({ queryKey: ['pet-details'] });
     },
     onError: (error) => {
       const message =

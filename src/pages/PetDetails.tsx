@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Alert, CircularProgress } from '@mui/material';
 import AdminHeader from '../components/admin/AdminHeader';
 import usePetDetailsQuery from '../hooks/usePetDetailsQuery';
+import PetFormDialog from '../components/admin/PetFormDialog';
+import VisitFormDialog from '../components/admin/VisitFormDialog';
 
 export default function PetDetail() {
+  const [isPetDialogOpen, setPetDialogOpen] = useState(false);
+  const [isVisitDialogOpen, setVisitDialogOpen] = useState(false);
   const { petId } = useParams<{ petId: string }>();
   const navigate = useNavigate();
   const { data, isPending, isError, error } = usePetDetailsQuery(petId);
@@ -31,18 +36,27 @@ export default function PetDetail() {
   const pet = data.pet;
   const owner = data.owner;
   const visits = data.visits ?? [];
+  const visitPetOptions = [{ value: pet.id, label: pet.name }];
 
   return (
     <div className="space-y-6">
       <AdminHeader title="Pet details" />
 
       <section className="space-y-4 rounded-2xl border border-slate-100 p-6">
-        <div>
-          <p className="text-xs font-semibold tracking-[0.3em] text-slate-500 uppercase">
-            Pet
-          </p>
-          <h1 className="text-2xl font-semibold text-slate-900">{pet.name}</h1>
-          <p className="text-sm text-slate-500">ID: {petId}</p>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-xs font-semibold tracking-[0.3em] text-slate-500 uppercase">
+              Pet
+            </p>
+            <h1 className="text-2xl font-semibold text-slate-900">{pet.name}</h1>
+            <p className="text-sm text-slate-500">ID: {petId}</p>
+          </div>
+          <button
+            className="cursor-pointer rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold tracking-wide text-slate-600 uppercase"
+            onClick={() => setPetDialogOpen(true)}
+          >
+            Edit pet
+          </button>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -69,7 +83,9 @@ export default function PetDetail() {
               </div>
               <div className="flex justify-between">
                 <dt>Weight</dt>
-                <dd className="font-medium">{pet.weightKg ? `${pet.weightKg} kg` : '—'}</dd>
+                <dd className="font-medium">
+                  {pet.weightKg ? `${pet.weightKg} kg` : '—'}
+                </dd>
               </div>
               <div className="flex justify-between">
                 <dt>Microchip</dt>
@@ -84,7 +100,7 @@ export default function PetDetail() {
                 Owner
               </h2>
               <button
-                className="text-xs font-semibold text-teal-600 cursor-pointer"
+                className="cursor-pointer text-xs font-semibold text-teal-600"
                 onClick={() => navigate(`/admin/clients/${owner.id}`)}
               >
                 View profile →
@@ -118,7 +134,10 @@ export default function PetDetail() {
               Last {visits.length} visits
             </p>
           </div>
-          <button className="rounded-full bg-teal-600 px-4 py-2 text-sm text-white cursor-pointer">
+          <button
+            className="cursor-pointer rounded-full bg-teal-600 px-4 py-2 text-sm text-white"
+            onClick={() => setVisitDialogOpen(true)}
+          >
             Schedule visit
           </button>
         </div>
@@ -149,6 +168,17 @@ export default function PetDetail() {
           )}
         </div>
       </section>
+      <PetFormDialog
+        open={isPetDialogOpen}
+        onClose={() => setPetDialogOpen(false)}
+        initialValues={pet}
+      />
+      <VisitFormDialog
+        open={isVisitDialogOpen}
+        onClose={() => setVisitDialogOpen(false)}
+        defaultPetId={pet.id}
+        petOptionsOverride={visitPetOptions}
+      />
     </div>
   );
 }
