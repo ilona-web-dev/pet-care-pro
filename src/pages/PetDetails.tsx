@@ -5,6 +5,8 @@ import AdminHeader from '../components/admin/AdminHeader';
 import usePetDetailsQuery from '../hooks/usePetDetailsQuery';
 import PetFormDialog from '../components/admin/PetFormDialog';
 import VisitFormDialog from '../components/admin/VisitFormDialog';
+import useUserRoleQuery from '../hooks/useUserRoleQuery';
+import useAuthSession from '../hooks/useAuthSession';
 
 export default function PetDetail() {
   const [isPetDialogOpen, setPetDialogOpen] = useState(false);
@@ -12,6 +14,12 @@ export default function PetDetail() {
   const { petId } = useParams<{ petId: string }>();
   const navigate = useNavigate();
   const { data, isPending, isError, error } = usePetDetailsQuery(petId);
+  const { userId, isLoading: isSessionLoading } = useAuthSession();
+  const { data: roleData, isLoading: isRoleLoading } = useUserRoleQuery(
+    userId ?? undefined,
+  );
+  const isRoleReady = !isSessionLoading && !isRoleLoading;
+  const canManage = isRoleReady && roleData === 'admin';
 
   if (isPending) {
     return (
@@ -40,11 +48,11 @@ export default function PetDetail() {
 
   return (
     <div className="space-y-6">
-      <AdminHeader title="Pet details" />
+      <AdminHeader title="Pet details" role={roleData} />
 
       <section className="space-y-4 rounded-2xl border border-slate-100 p-6">
-        <div className="flex items-start justify-between">
-          <div>
+        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="md:order-1">
             <p className="text-xs font-semibold tracking-[0.3em] text-slate-500 uppercase">
               Pet
             </p>
@@ -52,8 +60,9 @@ export default function PetDetail() {
             <p className="text-sm text-slate-500">ID: {petId}</p>
           </div>
           <button
-            className="cursor-pointer rounded-full bg-slate-100 px-4 py-2 text-xs font-semibold tracking-wide text-slate-600 uppercase"
+            className="text-xs font-semibold uppercase tracking-wide rounded-full bg-slate-100 px-4 py-2 text-slate-600 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400 md:order-2"
             onClick={() => setPetDialogOpen(true)}
+            disabled={!canManage}
           >
             Edit pet
           </button>
@@ -135,8 +144,9 @@ export default function PetDetail() {
             </p>
           </div>
           <button
-            className="cursor-pointer rounded-full bg-teal-600 px-4 py-2 text-sm text-white"
+            className="cursor-pointer rounded-full bg-teal-600 px-4 py-2 text-sm text-white disabled:cursor-not-allowed disabled:bg-teal-100 disabled:text-slate-400"
             onClick={() => setVisitDialogOpen(true)}
+            disabled={!canManage}
           >
             Schedule visit
           </button>

@@ -4,16 +4,22 @@ import useClientDetailsQuery from '../hooks/useClientDetailsQuery';
 import { Alert, CircularProgress } from '@mui/material';
 import PetFormDialog from '../components/admin/PetFormDialog';
 import VisitFormDialog from '../components/admin/VisitFormDialog';
+import useUserRoleQuery from '../hooks/useUserRoleQuery';
+import useAuthSession from '../hooks/useAuthSession';
+import UserRoleBadge from '../components/admin/UserRoleBadge';
 
 export default function ClientDetails() {
   const [isPetDialogOpen, setPetDialogOpen] = useState(false);
   const [isVisitDialogOpen, setVisitDialogOpen] = useState(false);
-  const [defaultVisitPetId, setDefaultVisitPetId] = useState<
-    string | undefined
-  >();
+  const [defaultVisitPetId, setDefaultVisitPetId] = useState<string | undefined>();
   const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
   const { data, isPending, isError, error } = useClientDetailsQuery(clientId);
+
+  const { userId, isLoading: isSessionLoading } = useAuthSession();
+  const { data: roleData, isLoading: isRoleLoading } = useUserRoleQuery(userId ?? undefined);
+  const isRoleReady = !isSessionLoading && !isRoleLoading;
+  const canManage = isRoleReady && roleData === 'admin';
 
   const client = data?.client;
   const pets = data?.pets ?? [];
@@ -44,14 +50,13 @@ export default function ClientDetails() {
 
   return (
     <div className="space-y-6">
-      <header>
-        <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">
-          Client
-        </p>
-        <h1 className="text-2xl font-semibold text-slate-900">
-          {client.fullName}
-        </h1>
-        <p className="text-sm text-slate-600">ID: {clientId}</p>
+      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <UserRoleBadge role={roleData} className="self-start md:self-auto md:order-2" />
+        <div className="md:order-1">
+          <p className="text-sm tracking-[0.2em] text-slate-500 uppercase">Client</p>
+          <h1 className="text-2xl font-semibold text-slate-900">{client.fullName}</h1>
+          <p className="text-sm text-slate-600">ID: {clientId}</p>
+        </div>
       </header>
       <section className="grid gap-4 md:grid-cols-2">
         <article className="rounded-2xl border border-slate-100 p-6 shadow-sm">
@@ -60,21 +65,15 @@ export default function ClientDetails() {
           </h2>
           <dl className="mt-4 space-y-3 text-sm text-slate-900">
             <div>
-              <dt className="text-xs font-semibold text-slate-500 uppercase">
-                Email
-              </dt>
+              <dt className="text-xs font-semibold text-slate-500 uppercase">Email</dt>
               <dd>{client.email || '—'}</dd>
             </div>
             <div>
-              <dt className="text-xs font-semibold text-slate-500 uppercase">
-                Phone
-              </dt>
+              <dt className="text-xs font-semibold text-slate-500 uppercase">Phone</dt>
               <dd>{client.phone || '—'}</dd>
             </div>
             <div>
-              <dt className="text-xs font-semibold text-slate-500 uppercase">
-                Address
-              </dt>
+              <dt className="text-xs font-semibold text-slate-500 uppercase">Address</dt>
               <dd>{client.address || '—'}</dd>
             </div>
           </dl>
@@ -92,8 +91,9 @@ export default function ClientDetails() {
         <div className="flex items-center justify-between">
           <h2 className="text-base font-semibold text-slate-800">Pets</h2>
           <button
-            className="cursor-pointer text-sm text-teal-600"
+            className="text-sm text-teal-600 disabled:cursor-not-allowed disabled:text-slate-300"
             onClick={() => setPetDialogOpen(true)}
+            disabled={!canManage}
           >
             Add pet
           </button>
@@ -126,16 +126,14 @@ export default function ClientDetails() {
       </section>
       <section className="rounded-2xl border border-slate-100 p-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-800">
-            Recent visits
-          </h2>
+          <h2 className="text-base font-semibold text-slate-800">Recent visits</h2>
           <button
-            className="cursor-pointer text-sm text-teal-600 disabled:cursor-not-allowed disabled:text-slate-300"
+            className="text-sm text-teal-600 disabled:cursor-not-allowed disabled:text-slate-300"
             onClick={() => {
               setDefaultVisitPetId(clientPetOptions[0]?.value);
               setVisitDialogOpen(true);
             }}
-            disabled={clientPetOptions.length === 0}
+            disabled={clientPetOptions.length === 0 || !canManage}
           >
             Schedule visit
           </button>
