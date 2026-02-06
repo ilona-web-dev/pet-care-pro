@@ -30,6 +30,8 @@ import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 import useDeletePetMutation from '../hooks/useDeletePetMutation';
 import type { Pet, PetSort } from '../types/admin';
 import Pagination from '../components/shared/Pagination';
+import useUserRoleQuery from '../hooks/useUserRoleQuery';
+import useAuthSession from '../hooks/useAuthSession';
 
 export default function AdminPets() {
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -61,6 +63,13 @@ export default function AdminPets() {
   const ownerNameById = useOwnerNameMap();
   const navigate = useNavigate();
 
+  const { userId, isLoading: isSessionLoading } = useAuthSession();
+  const { data: roleData, isLoading: isRoleLoading } = useUserRoleQuery(
+    userId ?? undefined,
+  );
+  const isRoleReady = !isSessionLoading && !isRoleLoading;
+  const canManage = isRoleReady && roleData === 'admin';
+
   return (
     <div className="-mx-6 overflow-x-auto px-6">
       <AdminHeader
@@ -70,6 +79,8 @@ export default function AdminPets() {
           setEditingPet(null);
           setDialogOpen(true);
         }}
+        actionDisabled={!canManage}
+        role={roleData}
       />
 
       <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
@@ -242,6 +253,7 @@ export default function AdminPets() {
                     <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                       <IconButton
                         aria-label="View pet"
+                        color="info"
                         onClick={() => navigate(`/admin/pets/${pet.id}`)}
                       >
                         <VisibilityOutlinedIcon fontSize="small" />
@@ -253,6 +265,7 @@ export default function AdminPets() {
                           setEditingPet(pet);
                           setDialogOpen(true);
                         }}
+                        disabled={!canManage}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -260,6 +273,7 @@ export default function AdminPets() {
                         size="small"
                         color="error"
                         onClick={() => setPetToDelele(pet.id)}
+                        disabled={!canManage}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>

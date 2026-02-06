@@ -28,6 +28,8 @@ import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 import type { Client, ClientSort } from '../types/admin';
 import Pagination from '../components/shared/Pagination';
 import { useNavigate } from 'react-router-dom';
+import useUserRoleQuery from '../hooks/useUserRoleQuery';
+import useAuthSession from '../hooks/useAuthSession';
 
 export default function AdminClients() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -55,6 +57,13 @@ export default function AdminClients() {
 
   const navigate = useNavigate();
 
+  const { userId, isLoading: isSessionLoading } = useAuthSession();
+  const { data: roleData, isLoading: isRoleLoading } = useUserRoleQuery(
+    userId ?? undefined,
+  );
+  const isRoleReady = !isSessionLoading && !isRoleLoading;
+  const canManage = isRoleReady && roleData === 'admin';
+
   return (
     <div className="space-y-3">
       <AdminHeader
@@ -64,6 +73,8 @@ export default function AdminClients() {
           setEditingClient(null);
           setIsDialogOpen(true);
         }}
+        actionDisabled={!canManage}
+        role={roleData}
       />
 
       <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
@@ -238,6 +249,7 @@ export default function AdminClients() {
                     <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                       <IconButton
                         aria-label="View client"
+                        color="info"
                         onClick={() => navigate(`/admin/clients/${client.id}`)}
                       >
                         <VisibilityOutlinedIcon fontSize="small" />
@@ -249,6 +261,7 @@ export default function AdminClients() {
                           setEditingClient(client);
                           setIsDialogOpen(true);
                         }}
+                        disabled={!canManage}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -256,6 +269,7 @@ export default function AdminClients() {
                         size="small"
                         color="error"
                         onClick={() => setClientToDelete(client.id)}
+                        disabled={!canManage}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>

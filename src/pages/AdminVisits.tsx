@@ -6,6 +6,8 @@ import usePetNameMap from '../hooks/usePetNameMap';
 import DeleteConfirmDialog from '../components/admin/DeleteConfirmDialog';
 import VisitFormDialog from '../components/admin/VisitFormDialog';
 import Pagination from '../components/shared/Pagination';
+import useUserRoleQuery from '../hooks/useUserRoleQuery';
+import useAuthSession from '../hooks/useAuthSession';
 
 import {
   Alert,
@@ -61,6 +63,13 @@ export default function AdminVisits() {
   const vetNameById = useVetNameMap();
   const petNameById = usePetNameMap();
 
+  const { userId, isLoading: isSessionLoading } = useAuthSession();
+  const { data: roleData, isLoading: isRoleLoading } = useUserRoleQuery(
+    userId ?? undefined,
+  );
+  const isRoleReady = !isSessionLoading && !isRoleLoading;
+  const canManage = isRoleReady && roleData === 'admin';
+
   return (
     <div className="space-y-3">
       <AdminHeader
@@ -70,6 +79,8 @@ export default function AdminVisits() {
           setEditingVisit(null);
           setIsDialogOpen(true);
         }}
+        actionDisabled={!canManage}
+        role={roleData}
       />
 
       <div className="rounded-2xl border border-slate-100 bg-slate-50 p-4">
@@ -305,6 +316,7 @@ export default function AdminVisits() {
                           setEditingVisit(visit);
                           setIsDialogOpen(true);
                         }}
+                        disabled={!canManage}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -312,6 +324,7 @@ export default function AdminVisits() {
                         size="small"
                         color="error"
                         onClick={() => setVisitToDelete(visit.id)}
+                        disabled={!canManage}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>

@@ -22,6 +22,8 @@ import VetFormDialog from '../components/admin/VetFormDialog';
 import useDeleteVetMutation from '../hooks/useDeleteVetMutation';
 import { type Vet } from '../types/admin';
 import Pagination from '../components/shared/Pagination';
+import useUserRoleQuery from '../hooks/useUserRoleQuery';
+import useAuthSession from '../hooks/useAuthSession';
 
 export default function AdminVets() {
   const [isDialogOpen, setDialogOpen] = useState(false);
@@ -32,17 +34,21 @@ export default function AdminVets() {
 
   const { mutate: deleteVet, isPending: isDeleting } = useDeleteVetMutation();
 
-  const {
-    data,
-    isPending,
-    isError,
-    error,
-    refetch,
-  } = useVetsQuery({ page, rowsPerPage });
+  const { data, isPending, isError, error, refetch } = useVetsQuery({
+    page,
+    rowsPerPage,
+  });
 
   const vets = data?.data ?? [];
   const total = data?.count ?? 0;
   const totalPages = Math.ceil(total / rowsPerPage);
+
+  const { userId, isLoading: isSessionLoading } = useAuthSession();
+  const { data: roleData, isLoading: isRoleLoading } = useUserRoleQuery(
+    userId ?? undefined,
+  );
+  const isRoleReady = !isSessionLoading && !isRoleLoading;
+  const canManage = isRoleReady && roleData === 'admin';
 
   return (
     <div className="space-y-3">
@@ -53,6 +59,8 @@ export default function AdminVets() {
           setEditingVet(null);
           setDialogOpen(true);
         }}
+        actionDisabled={!canManage}
+        role={roleData}
       />
 
       <VetFormDialog
@@ -137,7 +145,9 @@ export default function AdminVets() {
                     </TableCell>
                     <TableCell>{vet.role}</TableCell>
                     <TableCell>{vet.yearsExperience}</TableCell>
-                    <TableCell>{vet.isActive ? 'Active' : 'Inactive'}</TableCell>
+                    <TableCell>
+                      {vet.isActive ? 'Active' : 'Inactive'}
+                    </TableCell>
                     <TableCell>{vet.notes ?? '—'}</TableCell>
                     <TableCell align="right" sx={{ whiteSpace: 'nowrap' }}>
                       <IconButton
@@ -147,6 +157,7 @@ export default function AdminVets() {
                           setDialogOpen(true);
                           setEditingVet(vet);
                         }}
+                        disabled={!canManage}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -154,6 +165,7 @@ export default function AdminVets() {
                         size="small"
                         color="error"
                         onClick={() => setVetToDelete(vet.id)}
+                        disabled={!canManage}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>
