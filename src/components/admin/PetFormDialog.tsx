@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -15,38 +14,17 @@ import useCreatePetMutation from '../../hooks/useCreatePetMutation';
 import useUpdatePetMutation from '../../hooks/useUpdatePetMutation';
 import { useAllClientsQuery } from '../../hooks/useAllClientsQuery';
 import type { Pet } from '../../types/admin';
-
-const petSchema = z.object({
-  ownerId: z.string().min(1, 'Select owner'),
-  name: z.string().min(1, 'Enter pet name'),
-  species: z.enum(['dog', 'cat', 'bird', 'other']),
-  breed: z.string().optional(),
-  sex: z.enum(['male', 'female']).optional(),
-  birthDate: z.string().optional(),
-  microchip: z.string().optional(),
-  weightKg: z.string().optional(),
-  notes: z.string().optional(),
-});
-
-export type PetFormValues = z.infer<typeof petSchema>;
+import {
+  petSchema,
+  PET_FORM_DEFAULTS,
+  type PetFormValues,
+} from '../../formSchema/petSchema';
 
 type Props = {
   open: boolean;
   onClose: () => void;
   initialValues?: Pet | null;
   defaultOwnerId?: string;
-};
-
-const PET_FORM_DEFAULTS: PetFormValues = {
-  ownerId: '',
-  name: '',
-  species: 'dog',
-  breed: '',
-  sex: undefined,
-  birthDate: '',
-  microchip: '',
-  weightKg: '',
-  notes: '',
 };
 
 export default function PetFormDialog({
@@ -79,9 +57,7 @@ export default function PetFormDialog({
         sex: initialValues.sex ?? undefined,
         birthDate: initialValues.birthDate ?? '',
         microchip: initialValues.microchip ?? '',
-        weightKg: initialValues.weightKg
-          ? String(initialValues.weightKg)
-          : '',
+        weightKg: initialValues.weightKg ? String(initialValues.weightKg) : '',
         notes: initialValues.notes ?? '',
       });
       return;
@@ -94,10 +70,8 @@ export default function PetFormDialog({
 
   const isEditMode = Boolean(initialValues);
 
-  const { mutate: createPet, isPending: isCreating } =
-    useCreatePetMutation();
-  const { mutate: updatePet, isPending: isUpdating } =
-    useUpdatePetMutation();
+  const { mutate: createPet, isPending: isCreating } = useCreatePetMutation();
+  const { mutate: updatePet, isPending: isUpdating } = useUpdatePetMutation();
 
   const isSubmitting = isEditMode ? isUpdating : isCreating;
 

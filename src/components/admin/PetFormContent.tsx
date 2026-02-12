@@ -1,5 +1,5 @@
 import { type UseFormReturn } from 'react-hook-form';
-import type { PetFormValues } from './PetFormDialog';
+import type { PetFormValues } from '../../formSchema/petSchema';
 import FormField from '../ui/form/FormField';
 import FormInput from '../ui/form/FormInput';
 import FormSelect from '../ui/form/FormSelect';
@@ -30,7 +30,11 @@ export default function PetFormContent({ form, ownerOptions }: Props) {
 
   return (
     <div className="space-y-4">
-      <FormField label="Owner" htmlFor="ownerId" error={errors.ownerId?.message}>
+      <FormField
+        label="Owner"
+        htmlFor="ownerId"
+        error={errors.ownerId?.message}
+      >
         <FormSelect
           id="ownerId"
           options={ownerOptions}
