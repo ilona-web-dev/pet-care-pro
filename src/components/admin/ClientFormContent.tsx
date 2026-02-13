@@ -1,5 +1,5 @@
 import { type UseFormReturn } from 'react-hook-form';
-import type { ClientFormValues } from './ClientFormDialog'; // or re-export type
+import { type ClientFormValues } from '../../formSchema/clientSchema';
 import FormField from '../ui/form/FormField';
 import FormInput from '../ui/form/FormInput';
 import FormTextArea from '../ui/form/FormTextArea';

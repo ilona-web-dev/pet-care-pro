@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import ClientFormContent from './ClientFormContent';
@@ -14,29 +13,16 @@ import useCreateClientMutation from '../../hooks/useCreateClientMutation';
 import useUpdateClientMutation from '../../hooks/useUpdateClientMutation';
 import toast from 'react-hot-toast';
 import type { Client } from '../../types/admin';
-
-const clientSchema = z.object({
-  fullName: z.string().min(2, 'Enter full name'),
-  email: z.string().email('Valid email required'),
-  phone: z.string().min(5, 'Enter phone'),
-  address: z.string().optional(),
-  notes: z.string().optional(),
-});
-
-export type ClientFormValues = z.infer<typeof clientSchema>;
+import {
+  clientSchema,
+  CLIENT_FORM_DEFAULTS,
+  type ClientFormValues,
+} from '../../formSchema/clientSchema';
 
 type Props = {
   open: boolean;
   onClose: () => void;
   initialValues?: Client | null;
-};
-
-const CLIENT_FORM_DEFAULTS: ClientFormValues = {
-  fullName: '',
-  email: '',
-  phone: '',
-  address: '',
-  notes: '',
 };
 
 export default function ClientFormDialog({
@@ -119,8 +105,8 @@ export default function ClientFormDialog({
           {isSubmitting
             ? 'Saving…'
             : isEditMode
-            ? 'Save changes'
-            : 'Add client'}
+              ? 'Save changes'
+              : 'Add client'}
         </Button>
       </DialogActions>
     </Dialog>

@@ -3,7 +3,7 @@ import FormField from '../ui/form/FormField';
 import FormInput from '../ui/form/FormInput';
 import FormSelect from '../ui/form/FormSelect';
 import FormTextArea from '../ui/form/FormTextArea';
-import type { VisitFormValues } from './VisitFormDialog';
+import type { VisitFormValues } from '../../formSchema/visitSchema';
 import type { SelectOption } from '../ui/form/FormSelect';
 
 type VisitFormContentProps = {
@@ -73,7 +73,11 @@ export default function VisitFormContent({
       </FormField>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <FormField label="Reason" htmlFor="reason" error={errors.reason?.message}>
+        <FormField
+          label="Reason"
+          htmlFor="reason"
+          error={errors.reason?.message}
+        >
           <FormSelect
             id="reason"
             options={reasonOptions}
@@ -83,7 +87,11 @@ export default function VisitFormContent({
           />
         </FormField>
 
-        <FormField label="Status" htmlFor="status" error={errors.status?.message}>
+        <FormField
+          label="Status"
+          htmlFor="status"
+          error={errors.status?.message}
+        >
           <FormSelect
             id="status"
             options={statusOptions}
@@ -95,7 +103,11 @@ export default function VisitFormContent({
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
-        <FormField label="Diagnosis" htmlFor="diagnosis" error={errors.diagnosis?.message}>
+        <FormField
+          label="Diagnosis"
+          htmlFor="diagnosis"
+          error={errors.diagnosis?.message}
+        >
           <FormInput
             id="diagnosis"
             placeholder="Diagnosis notes"
@@ -104,7 +116,11 @@ export default function VisitFormContent({
           />
         </FormField>
 
-        <FormField label="Treatment" htmlFor="treatment" error={errors.treatment?.message}>
+        <FormField
+          label="Treatment"
+          htmlFor="treatment"
+          error={errors.treatment?.message}
+        >
           <FormInput
             id="treatment"
             placeholder="Treatment details"

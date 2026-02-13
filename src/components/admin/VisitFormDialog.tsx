@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogTitle,
 } from '@mui/material';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import VisitFormContent from './VisitFormContent';
@@ -16,28 +15,13 @@ import { useAllVetsQuery } from '../../hooks/useAllVetsQuery';
 import useOwnerNameMap from '../../hooks/useOwnerNameMap';
 import useUpdateVisitMutation from '../../hooks/useUpdateVisitMutation';
 import toast from 'react-hot-toast';
-import type { Visit } from '../../types/admin';
 import type { SelectOption } from '../ui/form/FormSelect';
-
-const visitSchema = z.object({
-  visitDate: z.string().min(1, 'Select date'),
-  petId: z.string().min(1, 'Select pet'),
-  vetId: z.string().min(1, 'Select vet'),
-  reason: z.enum([
-    'vaccination',
-    'routine_checkup',
-    'follow_up',
-    'grooming',
-    'other',
-  ]),
-  status: z.enum(['planned', 'in_progress', 'completed', 'cancelled']),
-  diagnosis: z.string().optional(),
-  treatment: z.string().optional(),
-  invoiceAmount: z.string().optional(),
-  notes: z.string().optional(),
-});
-
-export type VisitFormValues = z.infer<typeof visitSchema>;
+import type { Visit } from '../../types/admin';
+import {
+  visitSchema,
+  VISIT_FORM_DEFAULTS,
+  type VisitFormValues,
+} from '../../formSchema/visitSchema';
 
 type Props = {
   open: boolean;
@@ -45,18 +29,6 @@ type Props = {
   initialValues?: Visit | null;
   defaultPetId?: string;
   petOptionsOverride?: SelectOption[];
-};
-
-const VISIT_FORM_DEFAULTS: VisitFormValues = {
-  visitDate: '',
-  petId: '',
-  vetId: '',
-  reason: 'vaccination',
-  status: 'planned',
-  diagnosis: '',
-  treatment: '',
-  invoiceAmount: '',
-  notes: '',
 };
 
 export default function VisitFormDialog({
