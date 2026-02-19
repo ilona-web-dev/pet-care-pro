@@ -1,9 +1,9 @@
 import { type UseFormReturn } from 'react-hook-form';
-import type { VetFormValues } from './VetFormDialog';
 import FormField from '../ui/form/FormField';
 import FormInput from '../ui/form/FormInput';
 import FormTextArea from '../ui/form/FormTextArea';
 import FormSelect from '../ui/form/FormSelect';
+import { type VetFormValues } from '../../formSchema/vetSchema';
 
 type Props = { form: UseFormReturn<VetFormValues> };
 
